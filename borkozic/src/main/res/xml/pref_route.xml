@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androzic="http://schemas.android.com/apk/res/com.borkozic"
+    android:title="@string/pref_route_title" >
+
+    <com.borkozic.ui.preference.HelpfulCheckBoxPreference
+        android:defaultValue="@bool/def_route_preload"
+        android:key="@string/pref_route_preload"
+        android:summary="@string/pref_route_preload_summary"
+        android:title="@string/pref_route_preload_title" />
+    <com.borkozic.ui.preference.HelpfulCheckBoxPreference
+        android:defaultValue="@bool/def_route_preload_hidden"
+        android:dependency="@string/pref_route_preload"
+        android:key="@string/pref_route_preload_hidden"
+        android:summary="@string/pref_route_preload_hidden_summary"
+        android:title="@string/pref_route_preload_hidden_title" />
+
+    <com.borkozic.ui.preference.HelpfulSeekbarPreference
+        android:key="@string/pref_route_linewidth"
+        android:summary="@string/pref_route_linewidth_summary"
+        android:text=" pixels"
+        android:title="@string/pref_route_linewidth_title"
+        androzic:defaultValue="@integer/def_route_linewidth"
+        androzic:max="6"
+        androzic:min="1" />
+    <com.borkozic.ui.preference.HelpfulSeekbarPreference
+        android:key="@string/pref_route_pointwidth"
+        android:summary="@string/pref_route_pointwidth_summary"
+        android:text=" pixels"
+        android:title="@string/pref_route_pointwidth_title"
+        androzic:defaultValue="@integer/def_route_pointwidth"
+        androzic:max="33"
+        androzic:min="12" />
+
+    <com.borkozic.ui.preference.HelpfulCheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_route_showname"
+        android:summary="@string/pref_route_showname_summary"
+        android:title="@string/pref_route_showname_title" />
+
+</PreferenceScreen>

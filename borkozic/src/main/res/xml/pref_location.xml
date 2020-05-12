@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androzic="http://schemas.android.com/apk/res/com.borkozic"
+    android:title="@string/pref_loc_title" >
+
+    <com.borkozic.ui.preference.HelpfulCheckBoxPreference
+        android:defaultValue="@bool/def_loc_usenetwork"
+        android:key="@string/pref_loc_usenetwork"
+        android:summary="@string/pref_loc_usenetwork_summary"
+        android:title="@string/pref_loc_usenetwork_title" />
+
+    <com.borkozic.ui.preference.HelpfulSeekbarPreference
+        android:dependency="@string/pref_loc_usenetwork"
+        android:key="@string/pref_loc_gpstimeout"
+        android:summary="@string/pref_loc_gpstimeout_summary"
+        android:text=" seconds"
+        android:title="@string/pref_loc_gpstimeout_title"
+        androzic:defaultValue="@integer/def_loc_gpstimeout"
+        androzic:max="300"
+        androzic:min="30" />
+
+    <com.borkozic.ui.preference.HelpfulEditTextPreference
+        android:defaultValue="2000"
+        android:inputType="number"
+        android:key="@string/pref_tracking_mintime"
+        android:maxLength="5"
+        android:numeric="integer"
+        android:singleLine="true"
+        android:summary="@string/pref_tracking_mintime_summary"
+        android:title="@string/pref_tracking_mintime_title" />
+    
+    <com.borkozic.ui.preference.HelpfulEditTextPreference
+        android:defaultValue="3"
+        android:inputType="number"
+        android:key="@string/pref_tracking_mindistance"
+        android:maxLength="3"
+        android:numeric="integer"
+        android:singleLine="true"
+        android:summary="@string/pref_tracking_mindistance_summary"
+        android:title="@string/pref_tracking_mindistance_title" />
+    
+</PreferenceScreen>

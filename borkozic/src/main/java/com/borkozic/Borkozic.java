@@ -128,18 +128,23 @@ public class Borkozic extends BaseApplication
 	private double[] location = new double[] {Double.NaN, Double.NaN};
 	private double[] shouldBeVisible = new double[] {Double.NaN, Double.NaN};
 	private double magneticDeclination = 0;
-	
+
+	//List of objects
 	private AbstractMap<Long, MapObject> mapObjects = new HashMap<Long, MapObject>();
 	private List<Waypoint> waypoints = new ArrayList<Waypoint>();
 	private List<WaypointSet> waypointSets = new ArrayList<WaypointSet>();
 	private WaypointSet defWaypointSet;
 	private List<Track> tracks = new ArrayList<Track>();
 	private List<Route> routes = new ArrayList<Route>();
+// todo - тук трябва да добавя List<Area> - но преди това трябва да създам класа
+	//private List<Area> areas = new ArrayList<Area>();
 
 	// Map activity state
 	protected Route editingRoute = null;
 	protected Track editingTrack = null;
 	protected Stack<Waypoint> routeEditingWaypoints = null;
+	//protected Route editingArea = null;
+	//protected Stack<Waypoint> areaEditingWaypoints = null;
 	
 	// Plugins
 	private AbstractMap<String, Intent> pluginPreferences = new HashMap<String, Intent>();
@@ -159,6 +164,8 @@ public class Borkozic extends BaseApplication
 	public ScaleOverlay scaleOverlay;
 	public List<TrackOverlay> fileTrackOverlays = new ArrayList<TrackOverlay>();
 	public List<RouteOverlay> routeOverlays = new ArrayList<RouteOverlay>();
+	//todo - тук трябва да добавя List<AreaOverlay> - но преди това трябва да създам класа
+	//public List<AreaOverlay> areaOverlays = new ArrayList<AreaOverlay>();
 	
 	private Locale locale = null;
 	private Handler handler = null;

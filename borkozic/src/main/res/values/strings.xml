@@ -18,6 +18,14 @@
     <string name="saveroute_name">Save route to file</string>
     <string name="routeproperties_name">Edit route</string>
     <string name="routedetails_name">Route details</string>
+
+    <string name="manageareas_name">Areas</string>
+    <string name="selectarea_name">Select area</string>
+    <string name="loadarea_name">Load area from file</string>
+    <string name="savearea_name">Save area to file</string>
+    <string name="areaproperties_name">Edit area</string>
+    <string name="areadetails_name">Area details</string>
+
     <string name="markericon_name">Select marker icon</string>
     <string name="pref_name">Borkozic settings</string>
     <string name="hsi_name">HSI</string>
@@ -45,6 +53,9 @@
     <string name="msg_dedicated">Dedicated to our Creator and Savior</string>
     <string name="msg_nothing_found">Nothing was found. Please take into account that data is searched only if it is loaded in Borkozic, named locations are searched only if Internet connection is available.</string>
     <string name="msg_empty_route_list">No routes available. Use menu to create route or load it from file.</string>
+
+    <string name="msg_empty_area_list">No areas available. Use menu to create area or load it from file.</string>
+
     <string name="msg_empty_track_list">No tracks available. Use menu to load track from file.</string>
     <string name="msg_newdatafolder">On popular request Borkozic now works with folders differently. You can freely select any folder for maps and data. Data folder is now unified for all data types: waypoints, tracks and routes. You have to copy your existing data files manually to the following autocreated folder: &#8216;%s&#8217;.</string>
     <string name="msg_expandcurrenttrack">If you have not cleared your current track for a long time this can significantly degrade performance. Proceed?</string>
@@ -62,6 +73,9 @@
     <string name="err_wrongformat">Wrong file format</string>
     <string name="err_read">Can not read file</string>
     <string name="err_shortroute">Route must contain at least two waypoints</string>
+
+    <string name="err_shortarea">Area must contain at least 3 waypoints</string>
+
     <string name="err_nogps">No GPS device found</string>
     <string name="err_nomemory">Memory shortage detected, please report this to developer</string>
     <string name="err_notconfigured">Not configured</string>
@@ -105,6 +119,10 @@
     <string name="proximity">Proximity</string>
     <string name="accuracy">Accuracy</string>
     <string name="line_width">Line width</string>
+    <string name="area_line_width">Area line width</string>
+    <string name="area_color">Area Color</string>
+    <string name="area_line_color">Area Line Color</string>
+    <string name="area_transparency">Area transparency</string>
     <string name="filename">File name</string>
     <string name="coordformat">Coordinates format</string>
     <string name="direction">Select direction</string>
@@ -166,6 +184,7 @@
 
     <string name="menu_addwaypoint">Add waypoint</string>
     <string name="menu_addtoroute">Add to route</string>
+    <string name="menu_addtoarea">Add to area</string>
     <string name="menu_tracks">Tracks</string>
     <string name="menu_new_waypoint">New waypoint</string>
     <string name="menu_waypoints">Waypoints</string>
@@ -181,6 +200,8 @@
     <string name="menu_thisnavpoint">Navigate here</string>
     <string name="menu_routes">Routes</string>
     <string name="menu_newroute">New route</string>
+    <string name="menu_areas">Areas</string>
+    <string name="menu_newarea">New area</string>
     <string name="menu_properties">Properties</string>
     <string name="menu_project">Project new</string>
     <string name="menu_new">New</string>
@@ -348,6 +369,7 @@
     <string name="pref_route_pointwidth_summary">The pixel size of route waypoint marker</string>
     <string name="pref_route_showname_title">Show waypoint name</string>
     <string name="pref_route_showname_summary">Mark to show route waypoint name beside a marker</string>
+    <string name="pref_area_title">Areas</string>
     <string name="pref_navigation_title">Navigation</string>
     <string name="pref_navigation_proximity_title">Waypoint proximity</string>
     <string name="pref_navigation_proximity_summary">Proximity in meters at which route navigation will proceed to next available waypoint</string>

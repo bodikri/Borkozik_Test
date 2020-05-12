@@ -54,6 +54,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.ListFragment; //import androidx.core.app.ListFragment;
 
 import com.borkozic.Borkozic;
@@ -135,7 +136,7 @@ public class RouteList extends ListFragment
 				View v = getListView().findViewWithTag("selected");
 				if (v != null)
 				{
-					v.setBackgroundDrawable(selectedBackground);
+					v.setBackground(selectedBackground);
 					v.setTag(null);
 				}
 			}
@@ -143,19 +144,20 @@ public class RouteList extends ListFragment
 	}
 
 	@Override
-	public void onAttach(Activity activity)
+	public void onAttach(@NonNull Context context)
 	{
-		super.onAttach(activity);
+		super.onAttach(context);
+		//super.onAttach(activity);
 
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception
 		try
 		{
-			routeActionsCallback = (OnRouteActionListener) activity;
+			routeActionsCallback = (OnRouteActionListener) context;
 		}
 		catch (ClassCastException e)
 		{
-			throw new ClassCastException(activity.toString() + " must implement OnRouteActionListener");
+			throw new ClassCastException(context.toString() + " must implement OnRouteActionListener");
 		}
 	}
 
@@ -167,7 +169,7 @@ public class RouteList extends ListFragment
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
 	{
 		if (mode == MODE_MANAGE)
 		{

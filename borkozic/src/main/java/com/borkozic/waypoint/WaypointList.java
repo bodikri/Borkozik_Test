@@ -44,6 +44,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -126,7 +128,7 @@ public class WaypointList extends ExpandableListFragment implements OnItemLongCl
 				View v = getExpandableListView().findViewWithTag("selected");
 				if (v != null)
 				{
-					v.setBackgroundDrawable(selectedBackground);
+					v.setBackground(selectedBackground);
 					v.setTag(null);
 				}
 			}
@@ -139,19 +141,26 @@ public class WaypointList extends ExpandableListFragment implements OnItemLongCl
 	}
 
 	@Override
-	public void onAttach(Activity activity)
+	public void onAttach(@NonNull Context context)
 	{
-		super.onAttach(activity);
-		
+		//super.onAttach(activity);
+		super.onAttach(context);
+		/*
+		Activity a;
+		if (context instanceof Activity) {
+			a = (Activity) context;
+
+		}
+		*/
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception
 		try
 		{
-			waypointActionsCallback = (OnWaypointActionListener) activity;
+			waypointActionsCallback = (OnWaypointActionListener) context;
 		}
 		catch (ClassCastException e)
 		{
-			throw new ClassCastException(activity.toString() + " must implement OnWaypointActionListener");
+			throw new ClassCastException(context.toString() + " must implement OnWaypointActionListener");
 		}
 	}
 
@@ -205,14 +214,14 @@ public class WaypointList extends ExpandableListFragment implements OnItemLongCl
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater)
 	{
 		inflater.inflate(R.menu.waypointlist_menu, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
-	public void onPrepareOptionsMenu(final Menu menu)
+	public void onPrepareOptionsMenu(@NonNull final Menu menu)
 	{
 		if (mSortMode != -1)
 		{
@@ -230,12 +239,12 @@ public class WaypointList extends ExpandableListFragment implements OnItemLongCl
 			case R.id.action_sort_alpha:
 				adapter.sort(0);
 				mSortMode = R.id.action_sort_alpha;
-				getActivity().supportInvalidateOptionsMenu();
+				getActivity().invalidateOptionsMenu();
 				break;
 			case R.id.action_sort_size:
 				adapter.sort(1);
 				mSortMode = R.id.action_sort_size;
-				getActivity().supportInvalidateOptionsMenu();
+				getActivity().invalidateOptionsMenu();
 				break;
 			case R.id.menuLoadWaypoints:
 				startActivity(new Intent(activity, WaypointFileList.class));

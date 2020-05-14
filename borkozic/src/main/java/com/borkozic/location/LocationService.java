@@ -146,14 +146,14 @@ public class LocationService extends BaseLocationService implements LocationList
 		onSharedPreferenceChanged(sharedPreferences, getString(R.string.pref_tracking_mindistance));
 
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
+		Log.e(TAG, "Service started");
 		Log.i(TAG, "Service started");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {//Функция която връща Какво прави този клас при инициализиране на някаква команда(onStartCommand)
 		if (intent == null || intent.getAction() == null)
-			return 0;
+			return Service.START_NOT_STICKY;
 
 		if (intent.getAction().equals(ENABLE_LOCATIONS) && !locationsEnabled) {// инициализира локация и записване/споделяне на местонахождението(предполагам все още)
 			locationsEnabled = true;
@@ -189,9 +189,9 @@ public class LocationService extends BaseLocationService implements LocationList
 			errorTime = 0;
 			sendBroadcast(new Intent(BROADCAST_TRACKING_STATUS));
 		}
-		updateNotification();//информира потребителя, че извършена процедура по избраното действие
+		updateNotification();//информира потребителя, че извършена процедура по изб раното действие
 
-		return Service.START_REDELIVER_INTENT | Service.START_STICKY;
+		return Service.START_REDELIVER_INTENT ;//Service.START_REDELIVER_INTENT | Service.START_STICKY
 	}
 
 	@Override
@@ -656,6 +656,7 @@ public class LocationService extends BaseLocationService implements LocationList
 				@Override
 				public void run() {
 					callback.onGpsStatusChanged(LocationManager.GPS_PROVIDER, status, fsats, tsats);
+					Log.e(TAG, "Status broadcast GPS");
 				}
 			});
 		}

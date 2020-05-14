@@ -442,22 +442,18 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onNewIntent(Intent intent)
-    {
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         Log.e(TAG, "onNewIntent()");
-        if (intent.hasExtra("launch"))
-        {
+        if (intent.hasExtra("launch")) {
             Serializable object = intent.getExtras().getSerializable("launch");
-            if (Class.class.isInstance(object))
-            {
+            if (Class.class.isInstance(object)) {
                 Intent launch = new Intent(this, (Class<?>) object);
                 launch.putExtras(intent);
                 launch.removeExtra("launch");
                 startActivity(launch);
             }
-        }
-        else if (intent.hasExtra("lat") && intent.hasExtra("lon"))
-        {
+        } else if (intent.hasExtra("lat") && intent.hasExtra("lon")) {
             Borkozic application = (Borkozic) getApplication();
             application.ensureVisible(intent.getExtras().getDouble("lat"), intent.getExtras().getDouble("lon"));
         }
@@ -477,6 +473,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             String def_plane = (application.planePath).substring(36);
             //Let we see what kind procedures are available
             getSupportActionBar().setTitle(resources.getString(R.string.app_name) + "-" + def_plane);
+
         }catch (Exception e)
         {
             Toast.makeText(MapActivity.this,"Неточен път към папката за процедури!", Toast.LENGTH_LONG).show();
@@ -580,6 +577,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         {
             application.updateLocationMaps(true, map.isBestMapEnabled());
         }
+        Log.e(TAG, "Before updateMapViewArea()");
         updateMapViewArea();
         map.resume();
         map.updateMapInfo();

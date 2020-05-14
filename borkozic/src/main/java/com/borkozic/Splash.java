@@ -19,8 +19,8 @@
  */
 
 package com.borkozic;
-
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -29,9 +29,11 @@ import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -49,6 +51,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -62,6 +65,7 @@ import com.borkozic.util.OziExplorerFiles;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Splash extends Activity implements OnClickListener
@@ -88,6 +92,11 @@ public class Splash extends Activity implements OnClickListener
 	private Button no;
 	private Button quit;
 	protected Borkozic application;
+	//Permission atributes
+	private final static int ALL_PERMISSIONS_RESULT = 101;
+	ArrayList<String> permissions = new ArrayList<>();
+	ArrayList<String> permissionsToRequest;
+	ArrayList<String> permissionsRejected = new ArrayList<>();
 
 	@SuppressLint("NewApi")
 	@Override
@@ -96,7 +105,22 @@ public class Splash extends Activity implements OnClickListener
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		/*
+		permissions.add(Manifest.permission.NAVIGATION);
+		permissions.add(Manifest.permission.READ_MAP_DATA);
+		permissions.add(Manifest.permission.READ_PREFERENCES);
+		permissions.add(Manifest.permission.RECEIVE_LOCATION);
+		permissions.add(Manifest.permission.RECEIVE_TRACK);
+		permissions.add(Manifest.permission.WRITE_MAP_DATA);
+		*/
+		permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+		permissions.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		permissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+		permissions.add(android.Manifest.permission.INTERNET);
+		permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION);
+		permissions.add(android.Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS);
 
+		permissionsToRequest = findUnAskedPermissions(permissions);
 		application = (Borkozic) getApplication();
 
 		PreferenceManager.setDefaultValues(this, R.xml.pref_behavior, true);
@@ -117,19 +141,19 @@ public class Splash extends Activity implements OnClickListener
 			findViewById(R.id.paid).setVisibility(View.VISIBLE);
 		}
 
-		progress = (ProgressBar) findViewById(R.id.progress);
-		message = (TextView) findViewById(R.id.message);
+		progress = findViewById(R.id.progress);//PROGRESBAR
+		message = findViewById(R.id.message);//TEXTvIEW
 
 		message.setText(getString(R.string.msg_wait));
 		progress.setMax(PROGRESS_STEP * 4);
 
-		yes = (Button) findViewById(R.id.yes);
+		yes = findViewById(R.id.yes);//Button Yes
 		yes.setOnClickListener(this);
-		no = (Button) findViewById(R.id.no);
+		no = findViewById(R.id.no);//Button No
 		no.setOnClickListener(this);
-		gotit = (Button) findViewById(R.id.gotit);
+		gotit = findViewById(R.id.gotit);
 		gotit.setOnClickListener(this);
-		quit = (Button) findViewById(R.id.quit);
+		quit = findViewById(R.id.quit);
 		quit.setOnClickListener(this);
 
 		wait = true;
@@ -145,13 +169,14 @@ public class Splash extends Activity implements OnClickListener
 			progressHandler.sendEmptyMessage(MSG_FINISH);
 		}
 	}
-
+	//@RequiresApi(api = Build.VERSION_CODES.M)
 	private void showEula()
 	{
 		final SpannableString message;
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean hasBeenShown = prefs.getBoolean(getString(R.string.app_eulaaccepted), false);
-		if (hasBeenShown == false)
+
+		if (!hasBeenShown)
 		{
 			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
 			{// Do things the Android M way
@@ -190,6 +215,13 @@ public class Splash extends Activity implements OnClickListener
 		else
 		{
 			wait = false;
+		}
+		//Ето тук преди да е зазпочнало всичко е необходимо permissions за всичко
+
+		if (permissionsToRequest.size() > 0 && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
+		} else {
+			//Toast.makeText(context,"Permissions already granted.", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -243,6 +275,7 @@ public class Splash extends Activity implements OnClickListener
 			mHandler = h;
 		}
 
+
 		public void run()
 		{
 			while (wait)
@@ -268,11 +301,14 @@ public class Splash extends Activity implements OnClickListener
 			Resources resources = getResources();
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Splash.this);
 
+
+
 			// start location service
 			application.enableLocating(settings.getBoolean(getString(R.string.lc_locate), true));
 
 			// set root folder and check if it has to be created
 			String rootPath = settings.getString(getString(R.string.pref_folder_root), Environment.getExternalStorageDirectory() + File.separator + resources.getString(R.string.def_folder_prefix));
+			//Toast.makeText(Splash.this,"Path:"+rootPath , Toast.LENGTH_LONG).show();  //makeText("Path:"+rootPath , Toast.LENGTH_LONG).show();
 			File root = new File(rootPath);
 			if (!root.exists())
 			{
@@ -315,7 +351,7 @@ public class Splash extends Activity implements OnClickListener
 
 			// check data folder existence
 			File datadir = new File(settings.getString(getString(R.string.pref_folder_data), Environment.getExternalStorageDirectory() + File.separator + resources.getString(R.string.def_folder_data)));
-			//Toast.makeText(Splash.this,datadir.toString(),Toast.LENGTH_LONG).show();
+
 			android.util.Log.i("Splash",datadir.toString());
 			if (!datadir.exists())
 			{
@@ -594,6 +630,80 @@ public class Splash extends Activity implements OnClickListener
 			mHandler.sendEmptyMessage(MSG_FINISH);
 		}
 	}
+	private ArrayList findUnAskedPermissions(ArrayList<String> wanted) {
+		ArrayList result = new ArrayList();
+
+		for (String perm : wanted) {
+			if (!hasPermission(perm)) {
+				result.add(perm);
+			}
+		}
+
+		return result;
+	}
+
+	private boolean hasPermission(String permission) {
+		if (canAskPermission()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
+			}
+		}
+		return true;
+	}
+
+	private boolean canAskPermission() {
+		return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+	}
+	@TargetApi(Build.VERSION_CODES.M)
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		switch (requestCode) {
+			case ALL_PERMISSIONS_RESULT:
+				//Log.d(TAG, "onRequestPermissionsResult");
+				for (String perms : permissionsToRequest) {
+					if (!hasPermission(perms)) {
+						permissionsRejected.add(perms);
+					}
+				}
+
+				if (permissionsRejected.size() > 0) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+						if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
+							String msg = "These permissions are mandatory for the application. Please allow access.";
+							showMessageOKCancel(msg,
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+												requestPermissions(permissionsRejected.toArray(
+														new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
+											}
+										}
+									});
+							return;
+						}
+					}
+				} else {
+					//Toast.makeText(context, "Permissions garanted.", Toast.LENGTH_LONG).show();
+				}
+				break;
+		}
+	}
+
+	private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+		new AlertDialog.Builder(this)
+				.setMessage(message)
+				.setPositiveButton("OK", okListener)
+				.setNegativeButton("Cancel", null)
+				.create()
+				.show();
+	}
+
+
+
+
+
+
 
 	@Override
 	public void onClick(View v)

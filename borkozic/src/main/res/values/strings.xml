@@ -370,6 +370,16 @@
     <string name="pref_route_showname_title">Show waypoint name</string>
     <string name="pref_route_showname_summary">Mark to show route waypoint name beside a marker</string>
     <string name="pref_area_title">Areas</string>
+    <string name="pref_area_preload_title">Preload areas</string>
+    <string name="pref_area_preload_summary">Mark to preload areas from files on application start</string>
+    <string name="pref_area_preload_hidden_title">Hide preloaded areas</string>
+    <string name="pref_area_preload_hidden_summary">Hide preloaded areas until they are viewed, edited or navigated</string>
+    <string name="pref_area_linewidth_title">Area Line width</string>
+    <string name="pref_area_linewidth_summary">Pixel width of the area line</string>
+    <string name="pref_area_pointwidth_title">Marker size</string>
+    <string name="pref_area_pointwidth_summary">The pixel size of area waypoint marker</string>
+    <string name="pref_area_showname_title">Show waypoint name</string>
+    <string name="pref_area_showname_summary">Mark to show area waypoint name beside a marker</string>
     <string name="pref_navigation_title">Navigation</string>
     <string name="pref_navigation_proximity_title">Waypoint proximity</string>
     <string name="pref_navigation_proximity_summary">Proximity in meters at which route navigation will proceed to next available waypoint</string>

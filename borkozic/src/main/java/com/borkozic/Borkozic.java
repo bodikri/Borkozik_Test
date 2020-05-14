@@ -213,6 +213,12 @@ public class Borkozic extends BaseApplication
 		{
 			mo.setMapContext(mapActivity);
 		}
+		/*todo какво трябва да направя тук?
+		for (MapOverlay mo : areaOverlays)
+		{
+			mo.setMapContext(mapActivity);
+		}
+		*/
 		if (navigationOverlay != null)
 		{
 			navigationOverlay.setMapContext(mapActivity);
@@ -255,6 +261,7 @@ public class Borkozic extends BaseApplication
 			if (currentTrackOverlay != null)
 				overlays.add(currentTrackOverlay);
 			overlays.addAll(routeOverlays);
+			//overlays.addAll(areaOverlays); todo - eto
 			if (navigationOverlay != null)
 				overlays.add(navigationOverlay);
 			if (waypointsOverlay != null)
@@ -279,6 +286,7 @@ public class Borkozic extends BaseApplication
 			if (currentTrackOverlay != null)
 				overlays.add(currentTrackOverlay);
 			overlays.addAll(routeOverlays);
+			//overlays.addAll(areaOverlays); todo
 			if (waypointsOverlay != null)
 				overlays.add(waypointsOverlay);
 			overlays.addAll(fileTrackOverlays);
@@ -352,7 +360,7 @@ public class Borkozic extends BaseApplication
 		uid++;
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putLong(getString(R.string.app_lastuid), uid);
-		editor.commit();
+		editor.commit();//todo - трябва ли да го заменя с apply?
 		return uid;
 	}
 
@@ -563,7 +571,7 @@ public class Borkozic extends BaseApplication
 		catch (Exception e)
 		{
 			Toast.makeText(this, getString(R.string.err_write), Toast.LENGTH_LONG).show();
-			Log.e("ANDROZIC", e.toString(), e);
+			Log.e("BORKOZIC", e.toString(), e);
 		}
 	}
 
@@ -931,7 +939,67 @@ public class Borkozic extends BaseApplication
 	{
 		return routes.size() > 0;
 	}
+	/*todo
+		public int addArea(final Area newArea)
+	{
+		areas.add(newArea);
+		return areas.lastIndexOf(newArea);
+	}
 
+	public boolean removeArea(final Route delArea)
+	{
+		delArea.removed = true;
+		return areas.remove(delArea);
+	}
+
+	public void addAreas(final Iterable<Area> newAreas)
+	{
+		Iterator<Area> iterator = newAreas.iterator();
+		while (iterator.hasNext())
+			areas.add(iterator.next());
+	}
+
+	public void clearAreas()
+	{
+		for (Area area : areas)
+		{
+			area.removed = true;
+		}
+		areas.clear();
+	}
+
+	public Area getArea(final int index)
+	{
+		return areas.get(index);
+	}
+
+	public Area getAreaByFile(String filepath)
+	{
+		for (Area area : areas)
+		{
+			if (filepath.equals(route.filepath))
+				return area;
+		}
+		return null;
+	}
+
+	public int getAreaIndex(final Area area)
+	{
+		return areas.indexOf(area);
+	}
+
+	public List<Area> getAreas()
+	{
+		return areas;
+	}
+
+	public boolean hasAreas()
+	{
+		return areas.size() > 0;
+	}
+
+
+	*/
 	public double getDeclination()
 	{
 		if (angleType == 0)
@@ -1289,7 +1357,7 @@ public class Borkozic extends BaseApplication
 		// TODO should override equals()?
 		if (newMap != null && ! newMap.equals(currentMap) && mapActivity != null)
 		{
-			Log.d("ANDROZIC", "Set map: " + newMap);
+			Log.d("BORKOZIC", "Set map: " + newMap);
 			try
 			{
 				newMap.activate(mapActivity.map, screenSize);
@@ -1479,7 +1547,7 @@ public class Borkozic extends BaseApplication
 		clearMapObjects();
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putString(getString(R.string.loc_last), StringFormatter.coordinates(0, " ", mapCenter[0], mapCenter[1]));
-		editor.commit();			
+		editor.commit();//todo трябва ли да го заменя с apply
 		
 		stopService(new Intent(this, NavigationService.class));
 		stopService(new Intent(this, LocationService.class));

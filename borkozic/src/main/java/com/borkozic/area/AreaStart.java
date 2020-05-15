@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.borkozic.Borkozic;
 import com.borkozic.R;
+import com.borkozic.data.Area;
 import com.borkozic.data.Waypoint;
 import com.borkozic.navigation.NavigationService;
 

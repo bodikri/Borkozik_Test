@@ -5,6 +5,7 @@ import android.content.Intent;
 import com.borkozic.Borkozic;
 import com.borkozic.data.Area;
 import com.borkozic.ui.FileListActivity;
+import com.borkozic.util.AreaFilenameFilter;
 import com.borkozic.util.GpxFiles;
 import com.borkozic.util.KmlFiles;
 import com.borkozic.util.OziExplorerFiles;

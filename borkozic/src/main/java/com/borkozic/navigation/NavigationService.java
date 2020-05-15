@@ -40,6 +40,8 @@ import com.borkozic.Borkozic;
 import com.borkozic.HSIActivity;
 import com.borkozic.MapActivity;
 import com.borkozic.R;
+import com.borkozic.area.AreaDetails;
+import com.borkozic.data.Area;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
 import com.borkozic.location.ILocationListener;
@@ -83,7 +85,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
 	 */
 	public int navCurrentRoutePoint = -1;
 	private double navRouteDistance = -1;
-
+	/**
+	 * Active area
+	 */
+	public Area navArea = null;
 	/**
 	 * Distance to active waypoint
 	 */
@@ -133,7 +138,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 			Intent activity = new Intent(this, MapActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 			String action = intent.getAction();
 			if (action == null)
-				return 0;
+				return START_STICKY;;//return 0;
 			Bundle extras = intent.getExtras();
 			if (action.equals(NAVIGATE_MAPOBJECT))
 			{
@@ -166,6 +171,18 @@ public class NavigationService extends BaseNavigationService implements OnShared
 				navigateTo(application.getRoute(index), dir);
 				if (start != -1)
 					setRouteWaypoint(start);
+			}
+			if (action.equals(NAVIGATE_AREA))
+			{//не съм сигурен как действа този код и дали не трябва да добавя допълнителни константи които да отчитат добавеният от мен елемент
+				int index = extras.getInt(EXTRA_AREA_INDEX);
+				MapObject mo = new MapObject();
+				mo.name = extras.getString(EXTRA_NAME);// EXTRA_NAME_AREA
+				mo.latitude = extras.getDouble(EXTRA_LATITUDE);// EXTRA_LATITUDE_AREA
+				mo.longitude = extras.getDouble(EXTRA_LONGITUDE);// EXTRA_LONGITUDE_AREA
+				mo.proximity = extras.getInt(EXTRA_PROXIMITY);// EXTRA_PROXIMITY_AREA
+				activity.putExtra("launch", HSIActivity.class);
+				contentIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, activity, PendingIntent.FLAG_CANCEL_CURRENT);
+				navigateTo(mo);
 			}
 		}
 		return START_STICKY;
@@ -238,6 +255,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 		navWaypoint = null;
 		prevWaypoint = null;
 		navRoute = null;
+		navArea = null;
 
 		navDirection = 0;
 		navCurrentRoutePoint = -1;		
@@ -263,6 +281,10 @@ public class NavigationService extends BaseNavigationService implements OnShared
 	public boolean isNavigatingViaRoute()
 	{
 		return navRoute != null;
+	}
+	public boolean isNavigatingViaArea()
+	{
+		return navArea != null;
 	}
 
 	public void navigateTo(final MapObject waypoint)

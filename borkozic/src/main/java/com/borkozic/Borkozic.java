@@ -67,6 +67,7 @@ import android.util.Pair;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.borkozic.data.Area;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -81,6 +82,7 @@ import com.borkozic.map.online.OnlineMap;
 import com.borkozic.map.online.TileProvider;
 import com.borkozic.navigation.NavigationService;
 import com.borkozic.overlay.AccuracyOverlay;
+import com.borkozic.overlay.AreaOverlay;
 import com.borkozic.overlay.CurrentTrackOverlay;
 import com.borkozic.overlay.DistanceOverlay;
 import com.borkozic.overlay.LatLonGridOverlay;
@@ -137,14 +139,14 @@ public class Borkozic extends BaseApplication
 	private List<Track> tracks = new ArrayList<Track>();
 	private List<Route> routes = new ArrayList<Route>();
 // todo - тук трябва да добавя List<Area> - но преди това трябва да създам класа
-	//private List<Area> areas = new ArrayList<Area>();
+	private List<Area> areas = new ArrayList<Area>();
 
 	// Map activity state
 	protected Route editingRoute = null;
 	protected Track editingTrack = null;
 	protected Stack<Waypoint> routeEditingWaypoints = null;
-	//protected Route editingArea = null;
-	//protected Stack<Waypoint> areaEditingWaypoints = null;
+	protected Area editingArea = null;
+	protected Stack<Waypoint> areaEditingWaypoints = null;
 	
 	// Plugins
 	private AbstractMap<String, Intent> pluginPreferences = new HashMap<String, Intent>();
@@ -165,7 +167,7 @@ public class Borkozic extends BaseApplication
 	public List<TrackOverlay> fileTrackOverlays = new ArrayList<TrackOverlay>();
 	public List<RouteOverlay> routeOverlays = new ArrayList<RouteOverlay>();
 	//todo - тук трябва да добавя List<AreaOverlay> - но преди това трябва да създам класа
-	//public List<AreaOverlay> areaOverlays = new ArrayList<AreaOverlay>();
+	public List<AreaOverlay> areaOverlays = new ArrayList<AreaOverlay>();
 	
 	private Locale locale = null;
 	private Handler handler = null;
@@ -213,11 +215,12 @@ public class Borkozic extends BaseApplication
 		{
 			mo.setMapContext(mapActivity);
 		}
-		/*todo какво трябва да направя тук?
+
 		for (MapOverlay mo : areaOverlays)
 		{
 			mo.setMapContext(mapActivity);
 		}
+		/*todo какво трябва да направя тук?
 		*/
 		if (navigationOverlay != null)
 		{
@@ -261,7 +264,7 @@ public class Borkozic extends BaseApplication
 			if (currentTrackOverlay != null)
 				overlays.add(currentTrackOverlay);
 			overlays.addAll(routeOverlays);
-			//overlays.addAll(areaOverlays); todo - eto
+			overlays.addAll(areaOverlays);// todo - eto
 			if (navigationOverlay != null)
 				overlays.add(navigationOverlay);
 			if (waypointsOverlay != null)
@@ -286,7 +289,7 @@ public class Borkozic extends BaseApplication
 			if (currentTrackOverlay != null)
 				overlays.add(currentTrackOverlay);
 			overlays.addAll(routeOverlays);
-			//overlays.addAll(areaOverlays); todo
+			overlays.addAll(areaOverlays); //todo
 			if (waypointsOverlay != null)
 				overlays.add(waypointsOverlay);
 			overlays.addAll(fileTrackOverlays);
@@ -939,14 +942,15 @@ public class Borkozic extends BaseApplication
 	{
 		return routes.size() > 0;
 	}
-	/*todo
+
+	/*todo*/
 		public int addArea(final Area newArea)
 	{
 		areas.add(newArea);
 		return areas.lastIndexOf(newArea);
 	}
 
-	public boolean removeArea(final Route delArea)
+	public boolean removeArea(final Area delArea)
 	{
 		delArea.removed = true;
 		return areas.remove(delArea);
@@ -977,7 +981,7 @@ public class Borkozic extends BaseApplication
 	{
 		for (Area area : areas)
 		{
-			if (filepath.equals(route.filepath))
+			if (filepath.equals(area.filepath))
 				return area;
 		}
 		return null;
@@ -999,7 +1003,7 @@ public class Borkozic extends BaseApplication
 	}
 
 
-	*/
+
 	public double getDeclination()
 	{
 		if (angleType == 0)

@@ -46,6 +46,7 @@ import android.graphics.Color;
 import android.util.Log;
 import android.util.Xml;
 
+import com.borkozic.data.Area;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
 import com.borkozic.data.Track.TrackPoint;
@@ -232,6 +233,35 @@ public class KmlFiles
 			routes.add(route);
 		}
 		return routes;
+	}
+
+
+	/**
+	 * Loads areas from file.
+	 *
+	 * @param file valid <code>File</code> with areas
+	 * @return <code>List</code> of <code>Area</code>s
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public static List<Area> loadAreasFromFile(File file) throws SAXException, IOException, ParserConfigurationException
+	{
+		List<Track> tracks = loadTracksFromFile(file);
+		List<Area> areas = new ArrayList<Area>();
+		for (Track track : tracks)
+		{
+			Area area = new Area(track.name, track.description, null, track.show,10 , 1000);
+			int i = 0;
+			for (Track.TrackPoint tp : track.getPoints())
+			{
+				String name = "RWPT"+i;
+				area.addWaypoint(name, tp.latitude, tp.longitude, tp.elevation); //elev is added from me
+				i++;
+			}
+			areas.add(area);
+		}
+		return areas;
 	}
 }
 

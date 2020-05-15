@@ -11,6 +11,7 @@ import com.borkozic.Borkozic;
 import com.borkozic.R;
 import com.borkozic.area.OnAreaActionListener;
 import com.borkozic.data.Area;
+import com.borkozic.overlay.AreaOverlay;
 
 public class AreaListActivity extends AppCompatActivity implements OnAreaActionListener {
     static final int RESULT_START_AREA = 1;

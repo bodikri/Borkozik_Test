@@ -75,6 +75,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.borkozic.area.AreaDetails;
+import com.borkozic.area.AreaList;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -153,9 +155,15 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private static final int RESULT_LOAD_MAP_ATPOSITION = 0x120;
     private static final int RESULT_SAVE_WAYPOINTS = 0x140;
 
+    private static final int RESULT_MANAGE_AREAS = 0x150;
+    private static final int RESULT_EDIT_AREA = 0x160;
+
     private static final int qaAddWaypointToRoute = 1;
     private static final int qaNavigateToWaypoint = 2;
     private static final int qaNavigateToMapObject = 2;
+
+    private static final int qaAddWaypointToArea = 1;
+
     private static final int SCREEN_ORIENTATION_PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
     // main preferences
@@ -186,6 +194,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private TextView waypointExtra;
     private TextView routeName;
     private TextView routeExtra;
+    private TextView areaName;
+    private TextView areaExtra;
 
     //private TextView distanceValue;
     //private TextView distanceUnit;
@@ -298,6 +308,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         waypointExtra = (TextView) findViewById(R.id.waypointextra);
         routeName = (TextView) findViewById(R.id.routename);
         routeExtra = (TextView) findViewById(R.id.routeextra);
+        areaName = (TextView) findViewById(R.id.areaname);
+        areaExtra = (TextView) findViewById(R.id.areaextra);
         speedValue = (TextView) findViewById(R.id.speed);
         speedUnit = (TextView) findViewById(R.id.speedunit);
         trackValue = (TextView) findViewById(R.id.track);
@@ -1604,7 +1616,26 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             return true;
         }
     }
-
+    public boolean areaWaypointTapped(int area, int index, int x, int y)
+    {
+        if (application.editingRoute != null && application.editingArea == application.getArea(area))
+        {
+            startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("ROUTE", area + 1), RESULT_EDIT_ROUTE);
+            return true;
+        }
+        else if (navigationService != null && navigationService.navArea == application.getArea(area))
+        {
+            // routeSelected = route;
+            waypointSelected = index;
+            rteQuickAction.show(map, x, y);
+            return true;
+        }
+        else
+        {
+            startActivity(new Intent(this, AreaDetails.class).putExtra("INDEX", area));
+            return true;
+        }
+    }
     public boolean mapObjectTapped(long id, int x, int y)
     {
         mapObjectSelected = id;
@@ -1640,13 +1671,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         boolean wpt = application.hasWaypoints();
         boolean rts = application.hasRoutes();
+        boolean ars = application.hasAreas();
         boolean nvw = navigationService != null && navigationService.isNavigating();
         boolean nvr = navigationService != null && navigationService.isNavigatingViaRoute();
+        boolean nva = navigationService != null && navigationService.isNavigatingViaArea();
         boolean cbm = ((clipboard.hasPrimaryClip()) && (clipboard.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_PLAIN)));
 
         menu.findItem(R.id.menuManageWaypoints).setEnabled(wpt);
         menu.findItem(R.id.menuExportCurrentTrack).setEnabled(application.currentTrackOverlay != null);
         menu.findItem(R.id.menuClearCurrentTrack).setEnabled(application.currentTrackOverlay != null);
+        menu.findItem(R.id.menuManageAreas).setVisible(!nva);
         menu.findItem(R.id.menuManageRoutes).setVisible(!nvr);
         menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);
         menu.findItem(R.id.menuStartNavigation).setEnabled(rts);
@@ -1728,6 +1762,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 return true;
             case R.id.menuManageRoutes:
                 startActivityForResult(new Intent(this, RouteListActivity.class).putExtra("MODE", RouteList.MODE_MANAGE), RESULT_MANAGE_ROUTES);
+                return true;
+            case R.id.menuManageAreas:
+                startActivityForResult(new Intent(this, RouteListActivity.class).putExtra("MODE", AreaList.MODE_MANAGE), RESULT_MANAGE_AREAS);
                 return true;
             case R.id.menuStartNavigation:
                 if (application.getRoutes().size() > 1)

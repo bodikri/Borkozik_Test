@@ -64,7 +64,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
         navigation = getIntent().getExtras().getBoolean("nav");
 
         Borkozic application = (Borkozic) getApplication();
-        area = application.getRoute(index);
+        area = application.getArea(index);
 
         setTitle(navigation ? "› " + area.name : area.name);
 
@@ -167,7 +167,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                     }
                     break;
                 case qaWaypointProperties:
-                    int index = application.getRouteIndex(area);
+                    int index = application.getAreaIndex(area);
                     startActivity(new Intent(AreaDetails.this, WaypointProperties.class).putExtra("INDEX", selectedPosition).putExtra("ROUTE", index + 1));
                     break;
             }
@@ -228,39 +228,40 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
             }
         }
     };
-
-    public class WaypointListAdapter extends BaseAdapter // Shows route waypoint list, distance, course, total distance
+    // Shows route waypoint list, distance, course, total distance НО би трябвало да го направя да показва:
+    //точките на зоните и най-отдолу центъра на зоната и съответно дистанция и курс към нея
+    public class WaypointListAdapter extends BaseAdapter
     {
         private LayoutInflater mInflater;
         private int mItemLayout;
-        private Route mRoute;
+        private Area mArea;
 
-        public WaypointListAdapter(Context context, Route route)
+        public WaypointListAdapter(Context context, Area area)
         {
             mItemLayout = R.layout.route_waypoint_list_item;
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mRoute = route;
+            mArea = area;
         }
 
         public Waypoint getItem(int position)
         {
             if (navigation && navigationService != null && navigationService.navDirection  == NavigationService.DIRECTION_REVERSE)
-                position = mRoute.length() - position - 1;
-            return mRoute.getWaypoint(position);
+                position = mArea.length() - position - 1;
+            return mArea.getWaypoint(position);
         }
 
         @Override
         public long getItemId(int position)
         {
             if (navigation && navigationService != null && navigationService.navDirection  == NavigationService.DIRECTION_REVERSE)
-                position = mRoute.length() - position - 1;
+                position = mArea.length() - position - 1;
             return position;
         }
 
         @Override
         public int getCount()
         {
-            return mRoute.length();
+            return mArea.length();
         }
 
         @Override
@@ -292,7 +293,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                 int progress = position - navigationService.navRouteCurrentIndex();
                 if (position > 0)
                 {
-                    double dist = progress == 0 ? navigationService.navDistance : mRoute.distanceBetween(position - 1, position);
+                    double dist = progress == 0 ? navigationService.navDistance : mArea.distanceBetween(position - 1, position);
                     String distance = StringFormatter.distanceH(dist);
                     text = (TextView) v.findViewById(R.id.distance);
                     if (text != null)
@@ -305,9 +306,9 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                     if (progress == 0)
                         crs = navigationService.navBearing;
                     else if (navigationService.navDirection == NavigationService.DIRECTION_FORWARD)
-                        crs = mRoute.course(position - 1, position);
+                        crs = mArea.course(position - 1, position);
                     else
-                        crs = mRoute.course(position, position - 1);
+                        crs = mArea.course(position, position - 1);
                     String course = StringFormatter.bearingH(crs);
                     text = (TextView) v.findViewById(R.id.course);
                     if (text != null)
@@ -367,14 +368,14 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
             {
                 if (position > 0)
                 {
-                    double dist = mRoute.distanceBetween(position - 1, position);
+                    double dist = mArea.distanceBetween(position - 1, position);
                     String distance = StringFormatter.distanceH(dist);
                     text = (TextView) v.findViewById(R.id.distance);
                     if (text != null)
                     {
                         text.setText(distance);
                     }
-                    double crs = mRoute.course(position - 1, position);
+                    double crs = mArea.course(position - 1, position);
                     String course = StringFormatter.bearingH(crs);
                     text = (TextView) v.findViewById(R.id.course);
                     if (text != null)
@@ -382,7 +383,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                         text.setText(course);
                     }
                 }
-                double dist = position > 0 ? mRoute.distanceBetween(0, position) : 0.;
+                double dist = position > 0 ? mArea.distanceBetween(0, position) : 0.;
                 String distance = StringFormatter.distanceH(dist);
                 text = (TextView) v.findViewById(R.id.total_distance);
                 if (text != null)

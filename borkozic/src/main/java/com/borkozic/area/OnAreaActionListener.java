@@ -27,4 +27,6 @@ public interface OnAreaActionListener
 	void onAreaDetails(Area area);
 	void onAreaEdit(Area area);
 	void onAreaSave(Area area);
+	void onAreaNavigate(Area area);
+	void onAreaEditPath(Area area);
 }

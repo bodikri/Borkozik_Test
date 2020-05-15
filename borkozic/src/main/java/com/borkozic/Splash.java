@@ -359,7 +359,7 @@ public class Splash extends Activity implements OnClickListener
 				String wptdir = settings.getString(getString(R.string.pref_folder_waypoint), null);
 				System.err.println("wpt: " + wptdir);
 				if (wptdir != null)
-				{
+				{//покзва зъобщение че може да работи с :Data folder is now unified for all data types: waypoints, tracks and routes
 					wait = true;
 					msg = mHandler.obtainMessage(MSG_SAY);
 					b = new Bundle();

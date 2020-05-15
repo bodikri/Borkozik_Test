@@ -40,7 +40,11 @@ public abstract class BaseNavigationService extends Service
 	 * application is restarted.
 	 */
 	public static final String NAVIGATE_ROUTE = "com.borkozic.navigateRoute";
-
+	/**
+	 * Action to initiate navigation via area. Navigation is restored if
+	 * application is restarted.
+	 */
+	public static final String NAVIGATE_AREA = "com.borkozic.navigateArea";
 	/**
 	 * Map object id as returned by Androzic. Used with NAVIGATE_MAPOBJECT_WITH_ID action. Type: long
 	 */
@@ -62,9 +66,13 @@ public abstract class BaseNavigationService extends Service
 	 */
 	public static final String EXTRA_PROXIMITY = "proximity";
 	/**
-	 * Route index as returned by Androzic. Type: int
+	 * Route index as returned by Borkozic. Type: int
 	 */
 	public static final String EXTRA_ROUTE_INDEX = "index";
+	/**
+	 * Area index as returned by Borkozic. Type: int
+	 */
+	public static final String EXTRA_AREA_INDEX = "indexArea";//todo - да намеря дали е неоходимо
 	/**
 	 * Route direction: DIRECTION_FORWARD or DIRECTION_REVERSE.
 	 */
@@ -73,6 +81,10 @@ public abstract class BaseNavigationService extends Service
 	 * Route start waypoint index. Zero based, optional. Type: int
 	 */
 	public static final String EXTRA_ROUTE_START = "start";
+	/**
+	 * Area start waypoint index. Zero based, optional. Type: int
+	 */
+	public static final String EXTRA_AREA_START = "startArea"; //todo - да намеря дали е неоходимо
 
 	public static final String BROADCAST_NAVIGATION_STATUS = "com.borkozic.navigationStatusChanged";
 	public static final String BROADCAST_NAVIGATION_STATE = "com.borkozic.navigationStateChanged";

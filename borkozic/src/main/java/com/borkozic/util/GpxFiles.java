@@ -44,6 +44,7 @@ import org.xmlpull.v1.XmlSerializer;
 import android.util.Xml;
 
 import com.borkozic.Borkozic;
+import com.borkozic.data.Area;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
 import com.borkozic.data.Track.TrackPoint;
@@ -76,7 +77,7 @@ public class GpxFiles
 		SAXParser parser = null;
 
 		parser = factory.newSAXParser();
-		parser.parse(file, new GpxParser(file.getName(), waypoints, null, null));
+		parser.parse(file, new GpxParser(file.getName(), waypoints, null, null,null));
 		
 		return waypoints;
 	}
@@ -98,7 +99,7 @@ public class GpxFiles
 		SAXParser parser = null;
 
 		parser = factory.newSAXParser();
-		parser.parse(file, new GpxParser(file.getName(), null, tracks, null));
+		parser.parse(file, new GpxParser(file.getName(), null, tracks, null, null));
 		
 		if (tracks.size() > 0)
 		{
@@ -183,7 +184,7 @@ public class GpxFiles
 		SAXParser parser = null;
 
 		parser = factory.newSAXParser();
-		parser.parse(file, new GpxParser(file.getName(), null, null, routes));
+		parser.parse(file, new GpxParser(file.getName(), null, null, routes, null));
 		
 		if (routes.size() > 0)
 		{
@@ -191,6 +192,32 @@ public class GpxFiles
 		}
 		
 		return routes;
+	}
+	/**
+	 * Loads areas from file
+	 *
+	 * @param file valid <code>File</code> with areas
+	 * @return <code>List</code> of <code>Area</code>s
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public static List<Area> loadAreasFromFile(final File file) throws SAXException, IOException, ParserConfigurationException
+	{
+		List<Area> areas = new ArrayList<Area>();
+
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		SAXParser parser = null;
+
+		parser = factory.newSAXParser();
+		parser.parse(file, new GpxParser(file.getName(), null, null, null,areas));
+
+		if (areas.size() > 0)
+		{
+			areas.get(0).filepath = file.getCanonicalPath();
+		}
+
+		return areas;
 	}
 }
 
@@ -228,16 +255,19 @@ class GpxParser extends DefaultHandler
 	private boolean continous;
 	private List<Route> routes;
 	private Route route;
+	private List<Area> areas;
+	private Area area;
 	private Waypoint rtwpt;
 	private String filename;
 	
-	public GpxParser(String filename, List<Waypoint> waypoints, List<Track> tracks, List<Route> routes)
+	public GpxParser(String filename, List<Waypoint> waypoints, List<Track> tracks, List<Route> routes, List<Area> areas)
 	{
 		super();
 		builder = new StringBuilder();
 		this.waypoints = waypoints;
 		this.tracks = tracks;
 		this.routes = routes;
+		this.areas = areas;
 		this.filename = filename;
 		continous = false;
 	}
@@ -265,6 +295,11 @@ class GpxParser extends DefaultHandler
 		if (localName.equalsIgnoreCase(RTE) && routes != null)
 		{
 			route = new Route();
+		}
+		// <rte> Area added from me
+		if (localName.equalsIgnoreCase(RTE) && areas != null)
+		{
+			area = new Area();
 		}
 		// <rtept>
 		if (localName.equalsIgnoreCase(RTEPT) && route != null)
@@ -317,6 +352,19 @@ class GpxParser extends DefaultHandler
 			route.show = true;
 			routes.add(route);
 			route = null;
+		}
+		// </rte> Area added from me
+		else if (area != null && localName.equalsIgnoreCase(RTE))
+		{
+			if (area.name.equals(""))
+			{
+				area.name = filename;
+				if (areas.size() > 0)
+					area.name += "_"+areas.size();
+			}
+			area.show = true;
+			areas.add(area);
+			area = null;
 		}
 		// <rtept>
 		else if (rtwpt != null && localName.equalsIgnoreCase(RTEPT))

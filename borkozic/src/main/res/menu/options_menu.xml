@@ -88,7 +88,31 @@
                 android:title="@string/menu_all" />
         </menu>
     </item>
+    <item
+        android:id="@+id/menuAreas"
+        android:icon="@drawable/ic_action_directions"
+        android:orderInCategory="1"
+        android:title="@string/menu_areas">
 
+        <menu>
+            <item
+                android:id="@+id/menuManageAreas"
+                android:icon="@drawable/ic_action_list_2"
+                android:title="@string/menu_routes" />
+            <item
+                android:id="@+id/menuStartArea"
+                android:icon="@drawable/ic_action_directions"
+                android:title="@string/menu_startnavigation" />
+            <item
+                android:id="@+id/menuAreaDetails"
+                android:icon="@drawable/ic_action_list"
+                android:title="@string/menu_details" />
+            <item
+                android:id="@+id/menuStopNavigationArea"
+                android:icon="@drawable/ic_action_cancel"
+                android:title="@string/menu_stopnavigation" />
+        </menu>
+    </item>
     <item
         android:id="@+id/menuView"
         android:icon="@drawable/ic_action_show"

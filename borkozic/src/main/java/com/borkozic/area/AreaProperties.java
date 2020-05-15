@@ -38,7 +38,7 @@ public class AreaProperties extends Activity {
         int index = getIntent().getExtras().getInt("index");
 
         Borkozic application = (Borkozic) getApplication();
-        area = application.getRoute(index);// тук трябва да зарежда зоната
+        area = application.getArea(index);// тук трябва да зарежда зоната
 
         name = (TextView) findViewById(R.id.name_text);
         name.setText(area.name);

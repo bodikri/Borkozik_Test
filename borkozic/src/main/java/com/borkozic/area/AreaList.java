@@ -13,6 +13,7 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -149,7 +150,7 @@ public class AreaList extends ListFragment {
     {
         if (mode == MODE_MANAGE)
         {
-            inflater.inflate(R.menu.arealist_menu, menu);
+            inflater.inflate(R.menu.menu_area_list, menu);
         }
     }
 
@@ -160,12 +161,13 @@ public class AreaList extends ListFragment {
         {
             case R.id.menuNewArea:
                 Borkozic application = Borkozic.getApplication();
-                Area area = new Area("New Area", "", true);
+                // да направя да може клиента да въвежда центъра на зоната, по два начина-чрез координати или чрез посочване на картата
+                Area area = new Area("New Area", "",null, true,10,1000);
                 application.addArea(area);
                 areaActionsCallback.onAreaEdit(area);
                 return true;
             case R.id.menuLoadArea:
-                getActivity().startActivityForResult(new Intent(getActivity(), AreaFileList.class), AreaListActivity.RESULT_LOAD_AREA;
+                getActivity().startActivityForResult(new Intent(getActivity(), AreaFileList.class), AreaListActivity.RESULT_LOAD_AREA);
                 return true;
         }
         return false;
@@ -215,7 +217,7 @@ public class AreaList extends ListFragment {
                     areaActionsCallback.onAreaEdit(area);
                     break;
                 case qaAreaEdit:
-                    areaActionsCallback.onAreaEditPath(area);
+                    areaActionsCallback.onAreaEditPath(area); //todo - има нужа да проверя за какво е това
                     break;
                 case qaAreaSave:
                     areaActionsCallback.onAreaSave(area);
@@ -266,12 +268,12 @@ public class AreaList extends ListFragment {
             mLinePaint.setAntiAlias(true);
             mLinePaint.setStrokeWidth(mAreaWidth * mDensity);
             mLinePaint.setStyle(Paint.Style.STROKE);
-            mLinePaint.setColor(context.getResources().getColor(R.color.arealine));
+            mLinePaint.setColor(context.getResources().getColor(R.color.arealinecolor));//todo - има нужда от уточняване кой и какъв е този цвят
             mBorderPaint = new Paint();
             mBorderPaint.setAntiAlias(true);
             mBorderPaint.setStrokeWidth(1);
             mBorderPaint.setStyle(Paint.Style.STROKE);
-            mBorderPaint.setColor(context.getResources().getColor(R.color.arealine));
+            mBorderPaint.setColor(context.getResources().getColor(R.color.areacolor));//todo - има нужда от уточняване кой и какъв е този цвят
 
             application = Borkozic.getApplication();
         }

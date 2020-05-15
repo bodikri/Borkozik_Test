@@ -16,14 +16,15 @@ public class Area {
     public int areaColor = -1;
     public int AreaTransperency = -1;
 
-    public double bottomArea;
-    public double topArea;
+    public double bottomArea=10;
+    public double topArea=1000;
 
     public double distance;
-
+    public String filepath = null;
     public boolean removed = false;
     public boolean editing = false;
 
+    private Waypoint firstWaypoint;
     private Waypoint lastWaypoint;
     private Waypoint AreaCenter;
 
@@ -31,12 +32,13 @@ public class Area {
 
     public Area()
     {
-        this("", "", false,10,1000);
+        this("", "", null,false,10,1000);
     }
-    public Area(String name, String description, boolean show, double bottomArea, double topArea)
+    public Area(String name, String description, Waypoint AreaCenter, boolean show, double bottomArea, double topArea)
     {
         this.name = name;
         this.description = description;
+        this.AreaCenter = AreaCenter;
         this.show = show;
         this.bottomArea = bottomArea;
         this.topArea = topArea;

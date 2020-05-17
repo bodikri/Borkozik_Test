@@ -43,6 +43,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -255,7 +256,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     protected boolean ready = false;
     private boolean restarting = false;
 
-    /** Called when the activity is first created. */
+    /* Called when the activity is first created. */
     @SuppressLint("ShowToast")
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -382,7 +383,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         map.initialize(application);
 
         dimView = new RelativeLayout(this);
-
+        //Зарежда навигация към точка (MapObject-Wpt)
         String navWpt = settings.getString(getString(R.string.nav_wpt), "");
         if (!"".equals(navWpt) && savedInstanceState == null)
         {
@@ -393,7 +394,20 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             intent.putExtra(NavigationService.EXTRA_PROXIMITY, settings.getInt(getString(R.string.nav_wpt_prx), 0));
             startService(intent);
         }
-
+        //По същият пример трябва да зарежда навигация към зона( към точка в центъра на зоната)
+        /*
+         String navАреа = settings.getString(getString(R.string.nav_ареа), "");
+        if (!"".equals(navАреа) && savedInstanceState == null)
+        {
+            Intent intent = new Intent(getApplicationContext(), NavigationService.class).setAction(NavigationService.NAVIGATE_MAPOBJECT);
+            intent.putExtra(NavigationService.EXTRA_NAME, navАреа);
+            intent.putExtra(NavigationService.EXTRA_LATITUDE, (double) settings.getFloat(getString(R.string.nav_ареа_lat), 0));
+            intent.putExtra(NavigationService.EXTRA_LONGITUDE, (double) settings.getFloat(getString(R.string.nav_ареа_lon), 0));
+            intent.putExtra(NavigationService.EXTRA_PROXIMITY, settings.getInt(getString(R.string.nav_ареа_prx), 0));
+            startService(intent);
+        }
+        */
+        //Зарежда навигация по Маршрут
         String navRoute = settings.getString(getString(R.string.nav_route), "");
         if (!"".equals(navRoute) && settings.getBoolean(getString(R.string.pref_navigation_loadlast), getResources().getBoolean(R.bool.def_navigation_loadlast)) && savedInstanceState == null)
         {
@@ -606,7 +620,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         unregisterReceiver(broadcastReceiver);
         map.pause();
 
-        // save active route
+        // save active route or Wpt
         Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putString(getString(R.string.nav_route), "");
         editor.putString(getString(R.string.nav_wpt), "");
@@ -706,7 +720,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         turnValue = null;
         trackBar = null;
     }
-
+//От тук започва същинската част на кода какво да прави машинката при нормална работа
+    //Прави връзка с датчиците за местоположение и обновява информацията при стартирана навигация
     private ServiceConnection navigationConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service)
         {
@@ -729,7 +744,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             Log.d(TAG, "Navigation service disconnected");
         }
     };
-
+    //Какво да прави при обновяване на информацията за местоположението
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent)
@@ -806,7 +821,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         @Override
         public void onGpsStatusChanged(String provider, final int status, final int fsats, final int tsats)
         {
-            if (LocationManager.GPS_PROVIDER.equals(provider))
+            if (LocationManager.GPS_PROVIDER.equals(provider))//при обновяване на информация получена от GPS
             {
                 runOnUiThread(new Runnable() {
                     public void run()
@@ -966,7 +981,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private void updateMapViewArea()
     {
         final ViewTreeObserver vto = map.getViewTreeObserver();
-        vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+        vto.addOnGlobalLayoutListener (new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
             public void onGlobalLayout()
             {
                 Rect area = new Rect();
@@ -983,14 +999,21 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 if (!area.isEmpty())
                     map.updateViewArea(area);
                 if (vto.isAlive())
-                {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        vto.removeOnGlobalLayoutListener(this);
+                    } else {
+                        //noinspection deprecation
+                        vto.removeGlobalOnLayoutListener(this);
+                    }
+                //listener.onGlobalLayout();
+                /*{
                     vto.removeGlobalOnLayoutListener(this);
                 }
                 else
                 {
                     final ViewTreeObserver vto1 = map.getViewTreeObserver();
                     vto1.removeGlobalOnLayoutListener(this);
-                }
+                }*/
             }
         });
     }
@@ -1500,7 +1523,37 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             application.distanceOverlay.setEnabled(false);
         updateMapViewArea();
     }
+/*
+     private void startEditArea(Area area)
+    {
+        setFollowing(false);
+        application.editingArea = area;
+        application.editingArea.editing = true;
 
+        boolean newarea = true;
+        for (Iterator<AreaOverlay> iter = application.areaOverlays.iterator(); iter.hasNext();)
+        {
+            AreaOverlay ro = iter.next();
+            if (ro.getArea().editing)
+            {
+                ro.onAreaPropertiesChanged();
+                newarea = false;
+            }
+        }
+        if (newarea)
+        {
+            AreaOverlay newArea = new AreaOverlay(this, application.editingArea);
+            application.areaOverlays.add(newArea);
+        }
+        findViewById(R.id.editarea).setVisibility(View.VISIBLE);
+        updateGPSStatus();
+        application.areaEditingWaypoints = new Stack<Waypoint>();
+        if (showDistance > 0)
+            application.distanceOverlay.setEnabled(false);
+        updateMapViewArea();
+    }
+
+*/
     public void setFollowing(boolean follow)
     {
         if (application.editingRoute == null && application.editingTrack == null)

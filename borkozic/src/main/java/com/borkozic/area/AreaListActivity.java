@@ -30,7 +30,7 @@ public class AreaListActivity extends AppCompatActivity implements OnAreaActionL
 
         if (savedInstanceState == null)
         {
-            Fragment fragment = Fragment.instantiate(this, AreaList.class.getName());
+            Fragment fragment = Fragment.instantiate(this, AreaList.class.getName());//AreaList.class.getName()
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.add(android.R.id.content, fragment, "AreaList");
             fragmentTransaction.commit();

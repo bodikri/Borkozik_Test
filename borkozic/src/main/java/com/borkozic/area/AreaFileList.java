@@ -42,18 +42,11 @@ public class AreaFileList extends FileListActivity {
         try
         {
             String lc = file.getName().toLowerCase();
-            if (lc.endsWith(".rt2") || lc.endsWith(".rte"))
+            if (lc.endsWith(".art2"))
             {
                 areas = OziExplorerFiles.loadAreasFromFile(file, application.charset);
             }
-            else if (lc.endsWith(".kml"))
-            {
-                areas = KmlFiles.loadAreasFromFile(file);
-            }
-            else if (lc.endsWith(".gpx"))
-            {
-                areas = GpxFiles.loadAreasFromFile(file);
-            }
+
             if (areas.size() > 0)
             {
                 int[] index = new int[areas.size()];
@@ -75,20 +68,12 @@ public class AreaFileList extends FileListActivity {
         {
             runOnUiThread(wrongFormat);
         }
-        catch (SAXException e)
-        {
-            runOnUiThread(wrongFormat);
-            e.printStackTrace();
-        }
+
         catch (IOException e)
         {
             runOnUiThread(readError);
             e.printStackTrace();
         }
-        catch (ParserConfigurationException e)
-        {
-            runOnUiThread(readError);
-            e.printStackTrace();
-        }
+
     }
 }

@@ -18,7 +18,7 @@ public class Area {
 
     public double bottomArea=10;
     public double topArea=1000;
-
+    public Waypoint AreaCenter;
     public double distance;
     public String filepath = null;
     public boolean removed = false;
@@ -26,7 +26,7 @@ public class Area {
 
     private Waypoint firstWaypoint;
     private Waypoint lastWaypoint;
-    private Waypoint AreaCenter;
+
 
     private final List<Waypoint> waypoints = new ArrayList<Waypoint>(0);
 
@@ -77,7 +77,12 @@ public class Area {
         addWaypoint(waypoint);
         return waypoint;
     }
-
+    public Waypoint addAreaCenter(String name, double lat, double lon, double alt)
+    {
+        Waypoint waypoint = new Waypoint(name, "", lat, lon, alt);
+        AreaCenter = waypoint;
+        return this.AreaCenter;
+    }
     private void insertWaypoint(Waypoint waypoint)
     {
         if (waypoints.size() < 3) //Todo fixme - При 1 или 2 точки не може да се направи затворен контур, за това само се добавят към списъка

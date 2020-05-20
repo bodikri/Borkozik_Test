@@ -40,7 +40,7 @@ public class AreaSave extends Activity {
         }
         else
         {
-            filename.setText(FileUtils.sanitizeFilename(area.name) + ".rt2");
+            filename.setText(FileUtils.sanitizeFilename(area.name) + ".art2");
         }
 
         Button save = (Button) findViewById(R.id.save_button);

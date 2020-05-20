@@ -78,6 +78,7 @@ import android.widget.Toast;
 
 import com.borkozic.area.AreaDetails;
 import com.borkozic.area.AreaList;
+import com.borkozic.area.AreaListActivity;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -1729,22 +1730,24 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         boolean nvr = navigationService != null && navigationService.isNavigatingViaRoute();
         boolean nva = navigationService != null && navigationService.isNavigatingViaArea();
         boolean cbm = ((clipboard.hasPrimaryClip()) && (clipboard.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_PLAIN)));
-
+//следва код който дефинира поведението на трите точки(меню)
         menu.findItem(R.id.menuManageWaypoints).setEnabled(wpt);
         menu.findItem(R.id.menuExportCurrentTrack).setEnabled(application.currentTrackOverlay != null);
         menu.findItem(R.id.menuClearCurrentTrack).setEnabled(application.currentTrackOverlay != null);
-        menu.findItem(R.id.menuManageAreas).setVisible(!nva);
-        menu.findItem(R.id.menuManageRoutes).setVisible(!nvr);
-        menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);
-        menu.findItem(R.id.menuStartNavigation).setEnabled(rts);
+        //menu.findItem(R.id.menuManageAreas).setVisible(!nva);
+        menu.findItem(R.id.menuManageRoutes).setVisible(!nvr);//при стартиране на навигация по маршриут изчезва полето
+        menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);//полето се премахва от възможния избор за менюто
+        menu.findItem(R.id.menuStartNavigation).setEnabled(rts);//ако има налични маршрути полето е активно
+        menu.findItem(R.id.menuStartArea).setEnabled(ars);//ако налични зони полето е активоно
         menu.findItem(R.id.menuNavigationDetails).setVisible(nvr);
+        menu.findItem(R.id.menuAreaDetails).setVisible(nva);//полето се показва само ако има стартирано авигация към зона
         menu.findItem(R.id.menuNextNavPoint).setVisible(nvr);
         menu.findItem(R.id.menuPrevNavPoint).setVisible(nvr);
-        menu.findItem(R.id.menuNextNavPoint).setEnabled(navigationService != null && navigationService.hasNextRouteWaypoint());
-        menu.findItem(R.id.menuPrevNavPoint).setEnabled(navigationService != null && navigationService.hasPrevRouteWaypoint());
+        menu.findItem(R.id.menuNextNavPoint).setEnabled(navigationService != null && navigationService.hasNextRouteWaypoint());//полето е активно при наличие на следваща точка по маршрута
+        menu.findItem(R.id.menuPrevNavPoint).setEnabled(navigationService != null && navigationService.hasPrevRouteWaypoint());//полето е активно при наличие на предишна точка по маршрута
         menu.findItem(R.id.menuStopNavigation).setEnabled(nvw);
+        menu.findItem(R.id.menuStopNavigationArea).setEnabled(nva);// полето става неактивно
         menu.findItem(R.id.menuSetAnchor).setVisible(showDistance > 0 && !map.isFollowing());
-
         menu.findItem(R.id.menuPasteLocation).setEnabled(cbm);
         return true;
     }
@@ -1814,10 +1817,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 }).setNegativeButton(R.string.no, null).show();
                 return true;
             case R.id.menuManageRoutes:
+                //Log.e(TAG, "on_menuManageRoutes");
                 startActivityForResult(new Intent(this, RouteListActivity.class).putExtra("MODE", RouteList.MODE_MANAGE), RESULT_MANAGE_ROUTES);
                 return true;
-            case R.id.menuManageAreas:
-                startActivityForResult(new Intent(this, RouteListActivity.class).putExtra("MODE", AreaList.MODE_MANAGE), RESULT_MANAGE_AREAS);
+            case R.id.menuManageAreas://todo - да се уточни и направи да действа
+                //Log.e(TAG, "on_menuManageAreas");
+                startActivityForResult(new Intent(this, AreaListActivity.class).putExtra("MODE", AreaList.MODE_MANAGE), RESULT_MANAGE_AREAS);
                 return true;
             case R.id.menuStartNavigation:
                 if (application.getRoutes().size() > 1)

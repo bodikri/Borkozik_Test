@@ -99,11 +99,11 @@
             <item
                 android:id="@+id/menuManageAreas"
                 android:icon="@drawable/ic_action_list_2"
-                android:title="@string/menu_routes" />
+                android:title="@string/menu_areas" />
             <item
                 android:id="@+id/menuStartArea"
                 android:icon="@drawable/ic_action_directions"
-                android:title="@string/menu_startnavigation" />
+                android:title="@string/menu_start_nav_area" />
             <item
                 android:id="@+id/menuAreaDetails"
                 android:icon="@drawable/ic_action_list"

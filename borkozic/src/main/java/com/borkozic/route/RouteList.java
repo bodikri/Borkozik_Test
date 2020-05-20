@@ -148,7 +148,6 @@ public class RouteList extends ListFragment
 	{
 		super.onAttach(context);
 		//super.onAttach(activity);
-
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception
 		try
@@ -331,22 +330,22 @@ public class RouteList extends ListFragment
 				v = convertView;
 			}
 			Route route = getItem(position);
-			TextView text = (TextView) v.findViewById(R.id.name);
+			TextView text = v.findViewById(R.id.name);
 			text.setText(route.name);
 			String distance = StringFormatter.distanceH(route.distance);
-			text = (TextView) v.findViewById(R.id.distance);
+			text = v.findViewById(R.id.distance);
 			text.setText(distance);
-			text = (TextView) v.findViewById(R.id.filename);
+			text = v.findViewById(R.id.filename);
 			if (route.filepath != null)
 			{
-				String filepath = route.filepath.startsWith(application.dataPath) ? route.filepath.substring(application.dataPath.length() + 1, route.filepath.length()) : route.filepath;
+				String filepath = route.filepath.startsWith(application.dataPath) ? route.filepath.substring(application.dataPath.length() + 1) : route.filepath;
 				text.setText(filepath);
 			}
 			else
 			{
 				text.setText("");
 			}
-			ImageView icon = (ImageView) v.findViewById(R.id.icon);
+			ImageView icon = v.findViewById(R.id.icon);
 			Bitmap bm = Bitmap.createBitmap((int) (40 * mDensity), (int) (40 * mDensity), Config.ARGB_8888);
 			bm.eraseColor(Color.TRANSPARENT);
 			Canvas bc = new Canvas(bm);

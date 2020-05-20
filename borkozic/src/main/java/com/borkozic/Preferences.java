@@ -53,7 +53,7 @@ import com.borkozic.ui.SeekbarPreference;
 public class Preferences extends PreferenceActivity
 {
 
-	protected void onCreate(Bundle savedInstanceState)
+	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
@@ -102,7 +102,7 @@ public class Preferences extends PreferenceActivity
 		{
 			activity = Preferences.PluginsPreferences.class;
 		}
-		else if ("pref_application".equals(key))
+		else if ("pref_app_about".equals(key))
 		{
 			activity = Preferences.ApplicationPreferences.class;
 		}

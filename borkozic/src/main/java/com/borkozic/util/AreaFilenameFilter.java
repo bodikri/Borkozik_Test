@@ -10,6 +10,6 @@ public class AreaFilenameFilter implements FilenameFilter {
     public boolean accept(final File dir, final String filename)
     {
         String lc = filename.toLowerCase();
-        return lc.endsWith(".rt2") || lc.endsWith(".rte") || lc.endsWith(".gpx") || lc.endsWith(".kml");
+        return lc.endsWith(".art2") ;
     }
 }

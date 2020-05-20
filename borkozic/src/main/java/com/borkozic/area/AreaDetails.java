@@ -238,7 +238,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
 
         public WaypointListAdapter(Context context, Area area)
         {
-            mItemLayout = R.layout.route_waypoint_list_item;
+            mItemLayout = R.layout.area_waypoint_list;
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mArea = area;
         }
@@ -295,7 +295,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                 {
                     double dist = progress == 0 ? navigationService.navDistance : mArea.distanceBetween(position - 1, position);
                     String distance = StringFormatter.distanceH(dist);
-                    text = (TextView) v.findViewById(R.id.distance);
+                    text =  v.findViewById(R.id.distance);
                     if (text != null)
                     {
                         text.setText(distance);

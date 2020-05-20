@@ -195,6 +195,7 @@
     <string name="menu_stopnavigation">Stop navigating</string>
     <string name="menu_navigate">Navigate</string>
     <string name="menu_startnavigation">Navigate via route</string>
+    <string name="menu_start_nav_area">Navigate to area</string>
     <string name="menu_nextnavpoint">Skip to next</string>
     <string name="menu_prevnavpoint">Go to previous</string>
     <string name="menu_thisnavpoint">Navigate here</string>

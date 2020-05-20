@@ -51,7 +51,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -122,7 +121,7 @@ public class Splash extends Activity implements OnClickListener
 
 		permissionsToRequest = findUnAskedPermissions(permissions);
 		application = (Borkozic) getApplication();
-
+		/**/
 		PreferenceManager.setDefaultValues(this, R.xml.pref_behavior, true);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_folder, true);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_location, true);
@@ -135,12 +134,12 @@ public class Splash extends Activity implements OnClickListener
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, true);
 
 		setContentView(R.layout.act_splash);
-
+		/*
 		if (application.isPaid)
 		{
 			findViewById(R.id.paid).setVisibility(View.VISIBLE);
 		}
-
+		*/
 		progress = findViewById(R.id.progress);//PROGRESBAR
 		message = findViewById(R.id.message);//TEXTvIEW
 

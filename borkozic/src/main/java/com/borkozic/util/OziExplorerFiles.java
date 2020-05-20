@@ -438,20 +438,18 @@ public class OziExplorerFiles
 			// rt2 format
 			// H1,OziExplorer CE Route2 File Version 1.0
 			// H2,WGS 84
-		    line = reader.readLine();
-			fields = CSV.parseLine(line);
+		    line = reader.readLine();//чете цял ред
+			fields = CSV.parseLine(line); // чете поле от ред (полетата са разделени от запетайка)
 			if (! "H2".equals(fields[0]))
 			{
 				reader.close();
 				throw new IllegalArgumentException("Bad rt2 header");
 			}
 			/* H3,My route,show/hide,0
-			Field 0 : W
+			Field 0 : H3
 			Field 1 : Name
-			Field 2 : Latitude - decimal degrees
-			Field 3 : Longitude - decimal degrees
-			Field 4 : Altitude - meters - added from me Boris Stoykov
-			Field 5 : Code - 0 if normal, 1 if silent
+			Field 2 : show/hide (1/0)
+			Field 3 : color
 			*/
 		    line = reader.readLine();
 			fields = CSV.parseLine(line);
@@ -479,7 +477,16 @@ public class OziExplorerFiles
     		catch (NumberFormatException e)
     		{
     		}
-			// W,Tsapelka,  58.0460242,  28.9465437,0
+			/* W,Tsapelka,  58.0460242,  28.9465437,1500,0
+			Field 0 : W
+			Field 1 : Name
+			Field 2 : Latitude - decimal degrees
+			Field 3 : Longitude - decimal degrees
+			Field 4 : Altitude - meters - added from me Boris Stoykov
+			Field 5 : proximity - ако е въведено!
+			Field 6 : Code - 0 if normal, 1 if silent
+			*/
+			//
 		    while ((line = reader.readLine()) != null)
 			{
 				fields = CSV.parseLine(line);
@@ -604,32 +611,32 @@ public class OziExplorerFiles
 	{
 	    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), charset));
 		
-		writer.write("H1,OziExplorer CE Route2 File Version 1.0\n" +
-				"H2,WGS 84\n");
+		writer.write("H1,OziExplorer CE Route2 File Version 1.0\n" + "H2,WGS 84\n");
 
-		// Field 1 : H3
-		// Field 2 : route name (no commas allowed)
-		// Field 3 : ???-проба да записва Show/hide
-		// Field 4 : route color (RGB)
+		// Field 0 : H3
+		// Field 1 : route name (no commas allowed)
+		// Field 2 : ???-проба да записва Show/hide
+		// Field 3 : route color (RGB)
 		writer.write("H3,"+route.name.replace(',', (char) 209)+"," + String.valueOf(route.show) + ","+String.valueOf(rgb2bgr(route.lineColor))+"\n");
 	
-		//Field 1 : W
-		//Field 2 : Name
-		//Field 3 : Latitude - decimal degrees
-		//Field 4 : Longitude - decimal degrees
-		//Field 5 : Altitude - meters - added from me
+		//Field 0 : W
+		//Field 1 : Name
+		//Field 2 : Latitude - decimal degrees
+		//Field 3 : Longitude - decimal degrees
+		//Field 4 : Altitude - meters - added from me
+		//Field 5 : proximity
 		//Field 6 : Code - 0 if normal, 1 if silent
 	
-		// W,Tsapelka,  58.0460242,  28.9465437,0
+		// W,Tsapelka,  58.0460242,  28.9465437, 1500,0
 	
         List<Waypoint> waypoints = route.getWaypoints();
         synchronized (waypoints)
         {  
 	        for (Waypoint wpt : waypoints)
 	        {
-	        	writer.write("W,");
-	        	writer.write(wpt.name.replace(',', (char) 209)+",");
-	        	writer.write(coordFormat.format(wpt.latitude)+","+coordFormat.format(wpt.longitude)+","+String.valueOf(wpt.altitude)+",");//Fields[5] - for Altitude is added from me
+	        	writer.write("W,"); //Field 0
+	        	writer.write(wpt.name.replace(',', (char) 209)+",");//Field 1
+	        	writer.write(coordFormat.format(wpt.latitude)+","+coordFormat.format(wpt.longitude)+","+String.valueOf(wpt.altitude)+",");//Field 2,3, [4] - for Altitude is added from me
 	        	if (wpt.silent)
 	        		writer.write("1");
 	        	else
@@ -706,10 +713,24 @@ public class OziExplorerFiles
 			catch (NumberFormatException e)
 			{
 			}
-			// W,Tsapelka,  58.0460242,  28.9465437,0
+			// W,Tsapelka,  58.0460242,  28.9465437,1500,0
 			while ((line = reader.readLine()) != null)
 			{
 				fields = CSV.parseLine(line);
+				if ( "C".equals(fields[0]))
+				{
+					area.addAreaCenter(fields[1].replace((char) 209, ','), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));//Fields[4] - for Altitude is added from me
+					// Format extension (probably not compatible with OziExplorer)
+					if (fields.length > 6) //Changed from 5 to 6
+					{
+						try {
+							int proximity = Integer.parseInt(fields[5]);
+							if (proximity > 0)
+								area.getWaypoint(area.length() - 1).proximity = proximity;
+						} catch (NumberFormatException e) {
+						}
+					}
+				}
 				if (! "W".equals(fields[0]))
 					continue;
 				area.addWaypoint(fields[1].replace((char) 209, ','), Double.parseDouble(fields[2]), Double.parseDouble(fields[3]), Double.parseDouble(fields[4]));//Fields[4] - for Altitude is added from me
@@ -735,89 +756,6 @@ public class OziExplorerFiles
 			if ("".equals(area.name))
 				area.name = area.filepath;
 		}
-		else if ("OziExplorer Area File Version 1.0".equals(fields[0]))
-		{
-			// rte format
-
-			//OziExplorer Area File Version 1.0
-			//WGS 84
-			line = reader.readLine();
-			//Reserved 1
-			line = reader.readLine();
-			//Reserved 2
-			line = reader.readLine();
-			Area area = null;
-			int areaNum = -1;
-			int wptNum = 0;
-			//R,  0,AREA 1         ,Description,255
-			//W,  0,  1, 29,29              , -26.568702, 152.369428,35640.9202400, 0, 1, 0,   8388608,     65535,, 0, 0
-			//W,  1,  2, 35,35              , -26.550290, 152.416844,35641.5077900, 0, 1, 0,   8388608,     65535,, 0, 0
-			while ((line = reader.readLine()) != null)
-			{
-				fields = CSV.parseLine(line);
-				int rtn = Integer.valueOf(fields[1]);
-				if ("R".equals(fields[0]))
-				{
-					if (rtn == areaNum + 1)
-					{
-						if (area != null)
-						{
-							if (area.length() > 0)
-							{
-								area.show = true;
-								if (areaNum == 0)
-									area.filepath = file.getCanonicalPath();
-								if ("".equals(area.name))
-									area.name = "A"+areaNum;
-								areas.add(area);
-							}
-							area = null;
-						}
-						area = new Area();
-						area.name = fields[2].replace((char) 209, ',');
-						area.description = fields[3].replace((char) 209, ',');
-						area.show = true;
-						area.filepath = file.getCanonicalPath();
-						try
-						{
-							int color = Integer.parseInt(fields[4]);
-							if (color != 0)
-								area.lineColor = bgr2rgb(color);
-						}
-						catch (NumberFormatException e)
-						{
-						}
-						areaNum = rtn;
-						wptNum = 0;
-					}
-					else
-					{
-						reader.close();
-						throw new IllegalArgumentException("Bad area file");
-					}
-				}
-				else if ("W".equals(fields[0]))
-				{
-					if (rtn != areaNum)
-					{
-						reader.close();
-						throw new IllegalArgumentException("Bad area file");
-					}
-					int wpn = Integer.valueOf(fields[2]);
-					if (wpn != wptNum + 1)
-					{
-						reader.close();
-						throw new IllegalArgumentException("Bad area file");
-					}
-					wptNum++;
-					//W, 1, 2, 35,35              , -26.550290, 152.416844,35641.5077900, 0, 1, 0,   8388608,     65535,, 0, 0
-					if ("".equals(fields[4]))
-						fields[4] = "RWPT"+wptNum;
-					area.addWaypoint(new Waypoint(fields[4].replace((char) 209, ','), fields[13].replace((char) 209, ','), Double.parseDouble(fields[5]), Double.parseDouble(fields[6]),Double.parseDouble(fields[7])));
-					//Fields[7] - for Altitude is added from me
-				}
-			}
-		}
 		else
 		{
 			reader.close();
@@ -834,22 +772,34 @@ public class OziExplorerFiles
 		writer.write("H1,OziExplorer CE Area2 File Version 1.0\n" +
 				"H2,WGS 84\n");
 
-		// Field 1 : H3
-		// Field 2 : area name (no commas allowed)
-		// Field 3 : ???-проба да записва Show/hide
-		// Field 4 : area color (RGB)
+		// Field 0 : H3
+		// Field 1 : area name (no commas allowed)
+		// Field 2 : ???-проба да записва Show/hide
+		// Field 3 : area color (RGB)
 		writer.write("H3,"+area.name.replace(',', (char) 209)+"," + String.valueOf(area.show) + ","+String.valueOf(rgb2bgr(area.lineColor))+"\n");
 
-		//Field 1 : W
-		//Field 2 : Name
-		//Field 3 : Latitude - decimal degrees
-		//Field 4 : Longitude - decimal degrees
-		//Field 5 : Altitude - meters - added from me
-		//Field 6 : Code - 0 if normal, 1 if silent
-
-		// W,Tsapelka,  58.0460242,  28.9465437,0
-
+		/*AreaCenter
+		writer.write("C,");
+		writer.write(area.AreaCenter.name.replace(',', (char) 209)+",");
+		writer.write(coordFormat.format(area.AreaCenter.latitude)+","+coordFormat.format(area.AreaCenter.longitude)+","+String.valueOf(area.AreaCenter.altitude)+",");//Fields[5] - for Altitude is added from me
+		if (area.AreaCenter.silent)
+			writer.write("1");
+		else
+			writer.write("0");
+		// Format extension (probably not compatible with OziExplorer)
+		if (area.AreaCenter.proximity > 0)
+			writer.write("," + String.valueOf(area.AreaCenter.proximity));
+		writer.write("\n");
+		*/
 		List<Waypoint> waypoints = area.getWaypoints();
+		//Field 0 : W
+		//Field 1 : Name
+		//Field 2 : Latitude - decimal degrees
+		//Field 3 : Longitude - decimal degrees
+		//Field 4 : Altitude - meters - added from me
+		//Field 5 : proximity
+		//Field 6 : Code - 0 if normal, 1 if silent
+		// W,Tsapelka,  58.0460242,  28.9465437,1500,0
 		synchronized (waypoints)
 		{
 			for (Waypoint wpt : waypoints)
@@ -867,6 +817,7 @@ public class OziExplorerFiles
 				writer.write("\n");
 			}
 		}
+
 		writer.close();
 	}
 

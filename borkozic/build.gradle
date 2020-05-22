@@ -12,6 +12,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    useLibrary 'org.apache.http.legacy'
 }
 
 android.buildTypes {
@@ -20,7 +21,12 @@ android.buildTypes {
         proguardFiles.add(file('proguard-rules.pro'))
     }
 }
-
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
 
 
 dependencies {
@@ -29,5 +35,6 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
-
+    //implementation 'org.anasthase:android-seekbar-preference:1.1'
+    //implementation 'com.github.kizitonwose.colorpreference:support:1.1.0'
 }

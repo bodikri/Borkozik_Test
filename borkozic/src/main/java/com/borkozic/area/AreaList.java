@@ -161,7 +161,7 @@ public class AreaList extends ListFragment {
         {
             case R.id.menuNewArea:
                 Borkozic application = Borkozic.getApplication();
-                // да направя да може клиента да въвежда центъра на зоната, по два начина-чрез координати или чрез посочване на картата
+                // todo - да направя да може клиента да въвежда центъра на зоната, по два начина-чрез координати или чрез посочване на картата
                 Area area = new Area("New Area", "",null, true,10,1000);
                 application.addArea(area);
                 areaActionsCallback.onAreaEdit(area);

@@ -20,12 +20,6 @@
 
 package com.borkozic.route;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
-import net.londatiga.android.QuickAction.OnActionItemClickListener;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -41,7 +35,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-//import androidx.core.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,15 +48,25 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.ListFragment; //import androidx.core.app.ListFragment;
+import androidx.fragment.app.ListFragment;
 
 import com.borkozic.Borkozic;
 import com.borkozic.R;
 import com.borkozic.data.Route;
 import com.borkozic.util.StringFormatter;
 
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
+import net.londatiga.android.QuickAction.OnActionItemClickListener;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+//import androidx.core.app.ListFragment;
+
 public class RouteList extends ListFragment
 {
+	private static final String TAG = "RouteList";
 	public static final int MODE_MANAGE = 1;
 	public static final int MODE_START = 2;
 
@@ -239,6 +242,7 @@ public class RouteList extends ListFragment
 					break;
 				case qaRouteEdit:
 					routeActionsCallback.onRouteEditPath(route);
+					//Log.d(TAG, "onRouteEditPath");
 					break;
 				case qaRouteSave:
 					routeActionsCallback.onRouteSave(route);

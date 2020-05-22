@@ -259,6 +259,7 @@
             android:name=".track.TrackSave"
             android:label="@string/savetrack_name"
             android:theme="@style/Dialog" />
+
         <activity
             android:name=".route.RouteFileList"
             android:label="@string/loadroute_name"
@@ -317,6 +318,26 @@
             android:label="@string/areadetails_name"
             android:screenOrientation="portrait"/>
 
+        <!--
+        <activity
+            android:name="com.borkozic.plugin.locationshare.SituationList"
+            android:label="@string/pref_sharing_title"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+                <action android:name="com.borkozic.plugins.view" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.borkozic.plugin.locationshare.SharingPreferences"
+            android:label="@string/pref_sharing_title"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+                <action android:name="com.borkozic.plugins.preferences" />
+            </intent-filter>
+        </activity>
+        -->
 
         <receiver
             android:name=".ActionsReceiver"

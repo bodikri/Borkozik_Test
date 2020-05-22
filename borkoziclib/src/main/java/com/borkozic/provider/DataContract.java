@@ -12,7 +12,7 @@ public final class DataContract
 	protected static final String ICONS_PATH = "icons";
 	public static final Uri ICONS_URI = Uri.parse("content://" + AUTHORITY + "/" + ICONS_PATH);
 	
-	public static final String[] MAPOBJECT_COLUMNS = new String[] {"latitude", "longitude", "bitmap", "name", "description", "image", "textcolor", "backcolor"};
+	public static final String[] MAPOBJECT_COLUMNS = new String[] {"latitude", "longitude", "bitmap", "name", "description", "image", "marker", "textcolor", "backcolor"};
 	/**
 	 * Latitude (double, required)
 	 */
@@ -38,15 +38,23 @@ public final class DataContract
 	 */
 	public static final int MAPOBJECT_IMAGE_COLUMN = 5;
 	/**
+	 * Image marker, from markers pack (String, optional)
+	 */
+	public static final int MAPOBJECT_MARKER_COLUMN = 6;
+	/**
 	 * Text color (int, optional)
 	 */
-	public static final int MAPOBJECT_TEXTCOLOR_COLUMN = 6;
+	public static final int MAPOBJECT_TEXTCOLOR_COLUMN = 7;
 	/**
 	 * Marker/background color (int, optional)
 	 */
-	public static final int MAPOBJECT_BACKCOLOR_COLUMN = 7;
+	public static final int MAPOBJECT_BACKCOLOR_COLUMN = 8;
+
 	public static final String MAPOBJECT_ID_SELECTION = "IDLIST";
 	
 	public static final String[] ICON_COLUMNS = new String[] {"BITMAP"};
 	public static final int ICON_COLUMN = 0;
+
+	public static final String[] MARKER_COLUMNS = new String[] {"BITMAP"};
+	public static final int MARKER_COLUMN = 0;
 }

@@ -46,6 +46,10 @@ public class StringFormatter
 	public static String elevationFormat = "%.0f";
 	public static double elevationFactor = 1.0;
 	public static String elevationAbbr = "m";
+
+	public static String angleFormat = "%.0f";
+	public static double angleFactor = 1d;
+	public static String angleAbbr;
 	
 	//FIXME Should localize:
 	public static String secondAbbr = "sec";
@@ -107,6 +111,17 @@ public class StringFormatter
 
 	public static String elevationC(final double elevation) {
 		return String.format(elevationFormat, elevation * elevationFactor)+elevationAbbr;
+	}
+	public static String angleH(final double angle) {
+		if (angleFactor == 1d) {
+			// Special case for degrees: use symbol instead of abbreviation
+			return String.format(angleFormat, angle) + "\u00B0";
+		} else {
+			return angleC(angle) + " " + angleAbbr;
+		}
+	}
+	public static String angleC(final double angle) {
+		return String.format(angleFormat, angle / angleFactor);
 	}
 	public static final String coordinate(int format, double coordinate)
 	{

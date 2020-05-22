@@ -79,6 +79,7 @@ import android.widget.Toast;
 import com.borkozic.area.AreaDetails;
 import com.borkozic.area.AreaList;
 import com.borkozic.area.AreaListActivity;
+import com.borkozic.data.Area;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
@@ -90,6 +91,7 @@ import com.borkozic.location.LocationService;
 import com.borkozic.map.MapInformation;
 import com.borkozic.navigation.NavigationService;
 import com.borkozic.overlay.AccuracyOverlay;
+import com.borkozic.overlay.AreaOverlay;
 import com.borkozic.overlay.CurrentTrackOverlay;
 import com.borkozic.overlay.DistanceOverlay;
 import com.borkozic.overlay.MapObjectsOverlay;
@@ -548,7 +550,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         // prepare views
         customizeLayout(settings);
-        findViewById(R.id.editroute).setVisibility(application.editingRoute != null ? View.VISIBLE : View.GONE);
+        findViewById(R.id.editroute).setVisibility(application.editingRoute != null || application.editingArea != null ? View.VISIBLE : View.GONE);//появяа се само при режим на редакция на маршрут
+
         if (application.editingTrack != null)
         {
             startEditTrack(application.editingTrack);
@@ -604,12 +607,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         {
             application.updateLocationMaps(true, map.isBestMapEnabled());
         }
-        Log.e(TAG, "Before updateMapViewArea()");
         updateMapViewArea();
         map.resume();
         map.updateMapInfo();
         map.update();
         map.requestFocus();
+        Log.e(TAG, "After map.requestFocus()");
     }
 
     @Override
@@ -1518,13 +1521,14 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             application.routeOverlays.add(newRoute);
         }
         findViewById(R.id.editroute).setVisibility(View.VISIBLE);
+        Log.d(TAG, "startEditRoute");
         updateGPSStatus();
         application.routeEditingWaypoints = new Stack<Waypoint>();
         if (showDistance > 0)
             application.distanceOverlay.setEnabled(false);
         updateMapViewArea();
     }
-/*
+
      private void startEditArea(Area area)
     {
         setFollowing(false);
@@ -1546,7 +1550,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             AreaOverlay newArea = new AreaOverlay(this, application.editingArea);
             application.areaOverlays.add(newArea);
         }
-        findViewById(R.id.editarea).setVisibility(View.VISIBLE);
+        findViewById(R.id.editroute).setVisibility(View.VISIBLE);//използвам същият панел с бутони за едитване на маршрут
+        Log.d(TAG, "startEditArea");
         updateGPSStatus();
         application.areaEditingWaypoints = new Stack<Waypoint>();
         if (showDistance > 0)
@@ -1554,7 +1559,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         updateMapViewArea();
     }
 
-*/
+
     public void setFollowing(boolean follow)
     {
         if (application.editingRoute == null && application.editingTrack == null)
@@ -1672,9 +1677,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     }
     public boolean areaWaypointTapped(int area, int index, int x, int y)
     {
-        if (application.editingRoute != null && application.editingArea == application.getArea(area))
+        if (application.editingArea != null && application.editingArea == application.getArea(area))
         {
-            startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("ROUTE", area + 1), RESULT_EDIT_ROUTE);
+            startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("ROUTE", area + 1), RESULT_EDIT_AREA);
             return true;
         }
         else if (navigationService != null && navigationService.navArea == application.getArea(area))
@@ -1754,7 +1759,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item)
-    {
+    {//при натискане на някой от бутоните на меню (трите точки) лентата
         switch (item.getItemId())
         {
             case R.id.menuSearch:
@@ -2077,6 +2082,30 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 }
                 break;
             }
+            case RESULT_MANAGE_AREAS:
+            {
+                for (Iterator<AreaOverlay> iter = application.areaOverlays.iterator(); iter.hasNext();)
+                {
+                    AreaOverlay ro = iter.next();
+                    ro.onAreaPropertiesChanged();
+                    if (ro.getArea().removed)
+                    {
+                        ro.onBeforeDestroy();
+                        iter.remove();
+                    }
+                }
+                if (resultCode == RESULT_OK)
+                {
+                    Bundle extras = data.getExtras();
+                    int index = extras.getInt("index");
+                    int dir = extras.getInt("dir");
+                    if (dir != 0)
+                        startService(new Intent(this, NavigationService.class).setAction(NavigationService.NAVIGATE_AREA).putExtra(NavigationService.EXTRA_AREA_INDEX, index));
+                    else
+                        startEditArea(application.getArea(index));
+                }
+                break;
+            }
             case RESULT_EDIT_ROUTE:
                 for (Iterator<RouteOverlay> iter = application.routeOverlays.iterator(); iter.hasNext();)
                 {
@@ -2331,45 +2360,87 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 trackBar.setProgress(0);
                 trackBar.setProgress(na);
                 break;
-            case R.id.addpoint:
-                double[] aloc = application.getMapCenter();
-                application.routeEditingWaypoints.push(application.editingRoute.addWaypoint("RWPT" + application.editingRoute.length(), aloc[0], aloc[1]));
-                break;
-            case R.id.insertpoint:
-                double[] iloc = application.getMapCenter();
-                application.routeEditingWaypoints.push(application.editingRoute.insertWaypoint("RWPT" + application.editingRoute.length(), iloc[0], iloc[1]));
-                break;
-            case R.id.removepoint:
-                if (!application.routeEditingWaypoints.empty())
+            case R.id.addpoint: //От бутоните за редакция на маршрут - добавя следваща точка към маршрута
+                if (application.editingArea != null)
                 {
-                    application.editingRoute.removeWaypoint(application.routeEditingWaypoints.pop());
+                    double[] aloc = application.getMapCenter();
+                    application.areaEditingWaypoints.push(application.editingArea.addWaypoint("AWPT" + application.editingArea.length(), aloc[0], aloc[1]));
+                }else {
+                    double[] aloc = application.getMapCenter();
+                    application.routeEditingWaypoints.push(application.editingRoute.addWaypoint("RWPT" + application.editingRoute.length(), aloc[0], aloc[1]));
                 }
                 break;
-            case R.id.orderpoints:
-                startActivityForResult(new Intent(this, RouteEdit.class).putExtra("INDEX", application.getRouteIndex(application.editingRoute)), RESULT_EDIT_ROUTE);
+            case R.id.insertpoint: // добавя междинна точка към маршрута/зона
+                if (application.editingArea != null)
+                {
+                    double[] iloc = application.getMapCenter();
+                    application.areaEditingWaypoints.push(application.editingArea.insertWaypoint("AWPT" + application.editingArea.length(), iloc[0], iloc[1]));
+                }else {
+                    double[] iloc = application.getMapCenter();
+                    application.routeEditingWaypoints.push(application.editingRoute.insertWaypoint("RWPT" + application.editingRoute.length(), iloc[0], iloc[1]));
+                }
                 break;
-            case R.id.finishedit:
-                if ("New route".equals(application.editingRoute.name))
+            case R.id.removepoint: // премахва точка от маршрута/зона
+                if (application.editingArea != null)
                 {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-                    application.editingRoute.name = formatter.format(new Date());
+                    if (!application.areaEditingWaypoints.empty()) {
+                        application.editingArea.removeWaypoint(application.areaEditingWaypoints.pop());
+                    }
+                }else {
+                    if (!application.routeEditingWaypoints.empty()) {
+                        application.editingRoute.removeWaypoint(application.routeEditingWaypoints.pop());
+                    }
                 }
-                application.editingRoute.editing = false;
-                for (Iterator<RouteOverlay> iter = application.routeOverlays.iterator(); iter.hasNext();)
+                break;
+            case R.id.orderpoints://показва детайли за реда на точките по маршрута/зона
+                if (application.editingArea != null)
                 {
-                    RouteOverlay ro = iter.next();
-                    ro.onRoutePropertiesChanged();
+                    startActivityForResult(new Intent(this, RouteEdit.class).putExtra("INDEX", application.getAreaIndex(application.editingArea)), RESULT_EDIT_AREA);
+                }else {
+                    startActivityForResult(new Intent(this, RouteEdit.class).putExtra("INDEX", application.getRouteIndex(application.editingRoute)), RESULT_EDIT_ROUTE);
                 }
-                application.editingRoute = null;
-                application.routeEditingWaypoints = null;
-                findViewById(R.id.editroute).setVisibility(View.GONE);
-                updateGPSStatus();
-                if (showDistance == 2)
+                break;
+            case R.id.finishedit://завършва редакция на маршрут/зона
+                if (application.editingArea != null)
                 {
-                    application.distanceOverlay.setEnabled(true);
+                    if ("New area".equals(application.editingArea.name)) {
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
+                        application.editingArea.name = formatter.format(new Date());
+                    }
+                    application.editingArea.editing = false;
+                    for (Iterator<AreaOverlay> iter = application.areaOverlays.iterator(); iter.hasNext(); ) {
+                        AreaOverlay ro = iter.next();
+                        ro.onAreaPropertiesChanged();
+                    }
+                    application.editingArea = null;
+                    application.areaEditingWaypoints = null;
+                    findViewById(R.id.editroute).setVisibility(View.GONE);//лентата с която се редактира маршрута изчезва
+                    updateGPSStatus();
+                    if (showDistance == 2) {
+                        application.distanceOverlay.setEnabled(true);
+                    }
+                    updateMapViewArea();
+                    map.requestFocus();
+                }else {
+                    if ("New route".equals(application.editingRoute.name)) {
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
+                        application.editingRoute.name = formatter.format(new Date());
+                    }
+                    application.editingRoute.editing = false;
+                    for (Iterator<RouteOverlay> iter = application.routeOverlays.iterator(); iter.hasNext(); ) {
+                        RouteOverlay ro = iter.next();
+                        ro.onRoutePropertiesChanged();
+                    }
+                    application.editingRoute = null;
+                    application.routeEditingWaypoints = null;
+                    findViewById(R.id.editroute).setVisibility(View.GONE);//лентата с която се редактира маршрута изчезва
+                    updateGPSStatus();
+                    if (showDistance == 2) {
+                        application.distanceOverlay.setEnabled(true);
+                    }
+                    updateMapViewArea();
+                    map.requestFocus();
                 }
-                updateMapViewArea();
-                map.requestFocus();
                 break;
             case R.id.finishtrackedit:
                 application.editingTrack.editing = false;
@@ -2494,12 +2565,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         mapObjectSelected = savedInstanceState.getLong("mapObjectSelected");
 
         /*
-         * double[] distAncor = savedInstanceState.getDoubleArray("distAncor");
-         * if (distAncor != null)
-         * {
-         * application.distanceOverlay = new DistanceOverlay(this);
-         * application.distanceOverlay.setAncor(distAncor);
-         * }
+         double[] distAncor = savedInstanceState.getDoubleArray("distAncor");
+         if (distAncor != null)
+          {
+          application.distanceOverlay = new DistanceOverlay(this);
+          application.distanceOverlay.setAncor(distAncor);
+          }
          */
     }
 

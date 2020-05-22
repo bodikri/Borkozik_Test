@@ -191,6 +191,7 @@ public class AreaOverlay extends MapOverlay{
         final Path path = new Path();
         int i = 0;
         int lastX = 0, lastY = 0;
+        int firstX = 0, firstY = 0;
         List<Waypoint> waypoints = area.getWaypoints();
         synchronized (waypoints)
         {
@@ -203,6 +204,8 @@ public class AreaOverlay extends MapOverlay{
                     path.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);
                     lastX = xy[0];
                     lastY = xy[1];
+                    firstX = xy[0];
+                    firstY = xy[1];
                 }
                 else
                 {
@@ -214,6 +217,10 @@ public class AreaOverlay extends MapOverlay{
                     }
                 }
                 i++;
+            }
+            if (Math.abs(lastX - firstX) > 2 || Math.abs(lastY - firstY) > 2)
+            {
+                path.lineTo(firstX - cxy[0], firstY - cxy[1]);
             }
         }
         c.drawPath(path, linePaint);

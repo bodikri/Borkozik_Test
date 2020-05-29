@@ -1,6 +1,7 @@
 package com.borkozic.area;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,13 @@ import com.borkozic.ui.ColorButton;
 
 public class AreaProperties extends Activity {
 
+    private static final int MIN_VALUE = 10;
     private Area area;
 
     private TextView name;
     private TextView textViewProcentage;
-    //private TextView areaTransparencyText;
     //private TextView description;
-    private SeekBar seekBar;
+    private SeekBar seekBarAreaTransparency;
     private CheckBox show;
     private ColorButton colorLine;
     private ColorButton colorArea;
@@ -56,7 +57,7 @@ public class AreaProperties extends Activity {
         colorLine.setColor(area.lineColor, getResources().getColor(R.color.arealinecolor));
 
         colorArea = (ColorButton) findViewById(R.id.colorArea_button);
-        colorArea.setColor(area.areaColor, getResources().getColor(R.color.areacolor));
+        colorArea.setColor(area.fillColor, getResources().getColor(R.color.areacolor));
 
         ViewGroup width = (ViewGroup) findViewById(R.id.width_layout);
         width.setVisibility(View.GONE);
@@ -67,11 +68,23 @@ public class AreaProperties extends Activity {
         Button cancel = (Button) findViewById(R.id.cancel_button);
         cancel.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { finish(); } });
         textViewProcentage = (TextView) findViewById(R.id.textView);
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        seekBarAreaTransparency = (SeekBar) findViewById(R.id.seekBar);
+        seekBarAreaTransparency.setMax( 200 );
+        //area.AreaTransperency = getResources().getInteger(R.integer.def_area_transparensy);//todo - да се постави във settings - default transparency
+        seekBarAreaTransparency.setProgress(area.AreaTransperency);//todo -- не знам как да го направя както горните два атрибута на color
+        textViewProcentage.setText(""+ area.AreaTransperency + "%");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            seekBarAreaTransparency.setMin( 10 );
+        }
+        seekBarAreaTransparency.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 textViewProcentage.setText(""+ progress + "%");
+                if (progress < MIN_VALUE) {
+                    /* if seek bar value is lesser than min value then set min value to seek bar */
+                    seekBar.setProgress(MIN_VALUE);
+                }
             }
 
             @Override
@@ -96,8 +109,8 @@ public class AreaProperties extends Activity {
                 //route.description = description.getText().toString();
                 area.show = show.isChecked();
                 area.lineColor = colorLine.getColor();
-                area.areaColor = colorArea.getColor();
-                area.AreaTransperency = seekBar.getProgress();
+                area.fillColor = colorArea.getColor();
+                area.AreaTransperency = seekBarAreaTransparency.getProgress(); //percentToInt(seekBarAreaTransparency.getProgress());
                 //todo долна и горна граница на зоната
                 setResult(RESULT_OK);
                 finish();
@@ -121,4 +134,11 @@ public class AreaProperties extends Activity {
         colorArea = null;
     }
 
+    private int percentToInt (int p)
+
+    {
+    int percent = Math.max(10, Math.min(100, p)); // bound percent from 0 to 100
+    int intValue = Math.round( p / 100 * 255); // map percent to nearest integer (0 - 255)
+        return intValue;
+    }
 }

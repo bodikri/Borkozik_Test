@@ -90,23 +90,17 @@ public class Geometric {
         final int[] result = {(int) (Math.round(New_dY)),(int) Math.round(New_dX)};
         return result;
     }
-    /*
-     * Calculate distance between two points in latitude and longitude
-     * Uses Haversine method as its base.
-     * lat1, lon1 Start point lat2, lon2 End point
-     * @returns Distance in Meters
-     */
-    public static double distanceBorko(double lat1, double lat2, double lon1, double lon2)
-    {// WGS-84 ellipsoid
-        final int R = 6378137; // Radius of the earth in meters
+/*
+const percentToHex = (p) => {
+    const percent = Math.max(0, Math.min(100, p)); // bound percent from 0 to 100
+    const intValue = Math.round(p / 100 * 255); // map percent to nearest integer (0 - 255)
+    const hexValue = intValue.toString(16); // get hexadecimal representation
+    return hexValue.padStart(2, '0').toUpperCase(); // format with leading 0 and upper case characters
+}
 
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return  R * c ; // in meters
-
-    }
+console.log(percentToHex(0)); // 00
+console.log(percentToHex(50)); // 80
+console.log(percentToHex(80)); // CC
+console.log(percentToHex(100)); // FF
+ */
 }

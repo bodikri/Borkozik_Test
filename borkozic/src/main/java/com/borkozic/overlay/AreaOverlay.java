@@ -27,6 +27,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.core.content.ContextCompat;
@@ -37,16 +38,15 @@ import com.borkozic.MapView;
 import com.borkozic.R;
 import com.borkozic.data.Area;
 import com.borkozic.data.Waypoint;
-import com.borkozic.util.Geometric;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public class AreaOverlay extends MapOverlay{
-    private Paint linePaint;
-    private Paint linePaint2;
+    private static final String TAG = "AreaOverlay";
+    private Paint areaLinePaint;
+    private Paint areaFillPaint;
     private Paint borderPaint;
     private Paint fillPaint;
     private Paint textPaint;
@@ -60,7 +60,7 @@ public class AreaOverlay extends MapOverlay{
 
     private int pointWidth = 10;
     private int areaWidth = 2;
-    private int areaInWidth = 10;
+    private int areaInWidth = 1;
     private boolean showNames;
 
     public AreaOverlay(final Activity mapActivity)
@@ -70,23 +70,24 @@ public class AreaOverlay extends MapOverlay{
         area = new Area();
         bitmaps = new WeakHashMap<Waypoint, Bitmap>();
 
-        linePaint = new Paint();
-        linePaint.setAntiAlias(true);
-        linePaint.setStrokeWidth(areaWidth);
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setColor(ContextCompat.getColor(context, R.color.arealinecolor));//linePaint.setColor(context.getResources().getColor(R.color.arealine));
+        areaLinePaint = new Paint();
+        areaLinePaint.setAntiAlias(true);
+        areaLinePaint.setStrokeWidth(areaWidth);
+        areaLinePaint.setStyle(Paint.Style.STROKE);
+        areaLinePaint.setColor(ContextCompat.getColor(context, R.color.arealinecolor));//linePaint.setColor(context.getResources().getColor(R.color.arealine));
 
-        linePaint2 = new Paint();
-        linePaint2.setAntiAlias(false);
-        linePaint2.setStrokeWidth(areaInWidth);
-        linePaint2.setStyle(Paint.Style.STROKE);
-        linePaint2.setColor(ContextCompat.getColor(context, R.color.areacolor));//linePaint.setColor(context.getResources().getColor(R.color.arealine));
+        areaFillPaint = new Paint();
+        areaFillPaint.setAntiAlias(false);
+        areaFillPaint.setStrokeWidth(areaInWidth);
+        areaFillPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        areaFillPaint.setColor(ContextCompat.getColor(context, R.color.areacolor));//linePaint.setColor(context.getResources().getColor(R.color.arealine));
 
         fillPaint = new Paint();
         fillPaint.setAntiAlias(false);
         fillPaint.setStrokeWidth(1);
         fillPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         fillPaint.setColor(ContextCompat.getColor(context, R.color.areawaypoint));
+
         borderPaint = new Paint();
         borderPaint.setAntiAlias(false);
         borderPaint.setStrokeWidth(1);
@@ -117,14 +118,19 @@ public class AreaOverlay extends MapOverlay{
 
         area = aArea;
         if (area.lineColor == -1)
-            area.lineColor = linePaint.getColor();
+            area.lineColor = areaLinePaint.getColor();
+        if (area.fillColor == -1)
+            area.fillColor = areaFillPaint.getColor();
         onAreaPropertiesChanged();
     }
 
     private void initAreaColors()
     {
-        linePaint.setColor(area.lineColor);
-        linePaint.setAlpha(0xAA);
+        areaLinePaint.setColor(area.lineColor);
+        areaLinePaint.setAlpha(0xAA);
+        areaFillPaint.setColor(area.fillColor);
+        areaFillPaint.setAlpha(area.AreaTransperency);
+       // Log.e(TAG, "initAreaColors:"+area.AreaTransperency);
         borderPaint.setColor(area.lineColor);
         textFillPaint.setColor(area.lineColor);
         textFillPaint.setAlpha(0x88);
@@ -157,19 +163,23 @@ public class AreaOverlay extends MapOverlay{
 
     public void onAreaPropertiesChanged()
     {
-        if (linePaint.getColor() != area.lineColor)
+        if (areaLinePaint.getColor() != area.lineColor)
+        {
+            initAreaColors();
+        }
+        if (areaFillPaint.getColor() != area.fillColor)
         {
             initAreaColors();
         }
         if (area.editing)
         {
-            linePaint.setPathEffect(new DashPathEffect(new float[] { 5, 2 }, 0));
-            linePaint.setStrokeWidth(areaWidth * 3);
+            areaLinePaint.setPathEffect(new DashPathEffect(new float[] { 5, 2 }, 0));
+            areaLinePaint.setStrokeWidth(areaWidth * 3);
         }
         else
         {
-            linePaint.setPathEffect(null);
-            linePaint.setStrokeWidth(areaWidth);
+            areaLinePaint.setPathEffect(null);
+            areaLinePaint.setStrokeWidth(areaWidth);
         }
         bitmaps.clear();
     }
@@ -218,19 +228,12 @@ public class AreaOverlay extends MapOverlay{
         Borkozic application = (Borkozic) context.getApplication();
 
         final int[] cxy = mapView.mapCenterXY;
-        //int[] arr_xy = new int[2];
-        ArrayList<arr_xy> arrL_xy= new ArrayList<>();
-        ArrayList<Integer> arr_X = new ArrayList<>();
-        ArrayList<Integer> arr_Y = new ArrayList<>();
         final Path path = new Path();
         final Path path2 = new Path();
         int i = 0;
-
         int lastX = 0, lastY = 0;
         int firstX = 0, firstY = 0;
-        int secondX = 0, secondY = 0;
-        int thirdX = 0, thirdY = 0;
-        int endX = 0, endY = 0;
+
         List<Waypoint> waypoints = area.getWaypoints();
         synchronized (waypoints)
         {
@@ -241,27 +244,22 @@ public class AreaOverlay extends MapOverlay{
                 if (i == 0)
                 {
                     path.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);
+                    path2.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);//за да запълни зоната с друг цявчт
                     lastX = xy[0];
                     lastY = xy[1];
                     firstX = xy[0];
                     firstY = xy[1];
-                    //Geometric.newPointF(xy,xy,xy,4) ;
-                    arr_xy firstM = new arr_xy(firstX,firstY);
-                    arrL_xy.add(i,firstM);
-                    arr_X.add(i,firstX);
-                    arr_Y.add(i,firstY);
+
                 }
                 else
                 {
                     if (Math.abs(lastX - xy[0]) > 2 || Math.abs(lastY - xy[1]) > 2)
                     {
                         path.lineTo(xy[0] - cxy[0], xy[1] - cxy[1]);
+                        path2.lineTo(xy[0] - cxy[0], xy[1] - cxy[1]);
                         lastX = xy[0];
                         lastY = xy[1];
-                        arr_xy nextM = new arr_xy(lastX,lastY);
-                        arrL_xy.add(i,nextM);
-                        arr_X.add(i,lastX);
-                        arr_Y.add(i,lastY);
+
                     }
                 }
                 i++;
@@ -269,40 +267,16 @@ public class AreaOverlay extends MapOverlay{
             if (Math.abs(lastX - firstX) > 2 || Math.abs(lastY - firstY) > 2)
             {
                 path.lineTo(firstX - cxy[0], firstY - cxy[1]);// затваря фигурата
+                path2.lineTo(firstX - cxy[0], firstY - cxy[1]);// затваря фигурата
             }
-            int[] xy1 = new int[2];
-            xy1[0] = arr_X.get(0); xy1[1] = arr_Y.get(0);
-            int[] xy2 = new int[2];
-            xy2[0] = arr_X.get(1); xy2[1] = arr_Y.get(1);
-            int[] xy3 = new int[2];
-            xy3[0] = arr_X.get(2); xy3[1] = arr_Y.get(2);
-            int[] new_xy0 = new int[2]; new_xy0[0] = arr_X.get(0)-10; new_xy0[1] = arr_Y.get(0)-10;//Geometric.newPointF(xy1,xy2,xy3,4);
-            path2.setLastPoint(new_xy0[0] - cxy[0], new_xy0[1] - cxy[1]);
-            xy1[0] = arr_X.get(1); xy1[1] = arr_Y.get(1);
-            xy2[0] = arr_X.get(2); xy2[1] = arr_Y.get(2);
-            xy2[0] = arr_X.get(3); xy2[1] = arr_Y.get(3);
-            new_xy0[0] = arr_X.get(1)-10; new_xy0[1] = arr_Y.get(1)-10;
-            //new_xy0 = Geometric.newPointF(xy1,xy2,xy3,4);
-            path2.lineTo(new_xy0[0] - cxy[0], new_xy0[1] - cxy[1]);
-            xy1[0] = arr_X.get(2); xy1[1] = arr_Y.get(2);
-            xy2[0] = arr_X.get(3); xy2[1] = arr_Y.get(3);
-            xy2[0] = arr_X.get(0); xy2[1] = arr_Y.get(0);
-            new_xy0[0] = arr_X.get(2)-10; new_xy0[1] = arr_Y.get(2)-10;
-            //new_xy0 = Geometric.newPointF(xy1,xy2,xy3,4);
-            path2.lineTo(new_xy0[0] - cxy[0], new_xy0[1] - cxy[1]);
-            new_xy0[0] = arr_X.get(3)-10; new_xy0[1] = arr_Y.get(3)-10;
-            //new_xy0 = Geometric.newPointF(xy1,xy2,xy3,4);
-            path2.lineTo(new_xy0[0] - cxy[0], new_xy0[1] - cxy[1]);
-            new_xy0[0] = arr_X.get(0)-10; new_xy0[1] = arr_Y.get(0)-10;
-            //new_xy0 = Geometric.newPointF(xy1,xy2,xy3,4);
-            path2.lineTo(new_xy0[0] - cxy[0], new_xy0[1] - cxy[1]);
+
         }
 
 
 
 
-        c.drawPath(path, linePaint);
-        c.drawPath(path2, linePaint2);
+        c.drawPath(path, areaLinePaint);
+        c.drawPath(path2, areaFillPaint);
     }
 
 
@@ -375,7 +349,8 @@ public class AreaOverlay extends MapOverlay{
 
         if (!area.editing)
         {
-            linePaint.setStrokeWidth(areaWidth);
+            areaLinePaint.setStrokeWidth(areaWidth);
+
         }
         textPaint.setTextSize(pointWidth * 1.5f);
         bitmaps.clear();

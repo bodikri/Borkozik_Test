@@ -14,6 +14,7 @@
 <integer name="def_route_pointwidth">6</integer>
     <integer name="def_area_linewidth">2</integer>
     <integer name="def_area_pointwidth">6</integer>
+    <integer name="def_area_transparensy">33</integer>
 <integer name="def_track_linewidth">1</integer>
 <integer name="def_navigation_linewidth">5</integer>
 <integer name="def_onlinemapscale">12</integer>

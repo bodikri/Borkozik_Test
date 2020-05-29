@@ -13,7 +13,7 @@ public class Area {
     public int wptColor = -1;
     public int lineColor = -1;
     public int lineWidth;
-    public int areaColor = -1;
+    public int fillColor = -1;
     public int AreaTransperency = -1;
 
     public double bottomArea=10;

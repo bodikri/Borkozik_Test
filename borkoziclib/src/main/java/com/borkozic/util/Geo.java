@@ -383,7 +383,10 @@ public class Geo
 
 		return heightCP-neededElev;
 	}
-
+	/*
+	 * Calculate bearing between line on two points in latitude and longitude taking
+	 * @returns bearing in degree
+	 */
 	public static double bearing(double lat1, double lon1, double lat2, double lon2)
 	{
 		double deltaLong = Math.toRadians(lon2 - lon1);
@@ -395,6 +398,37 @@ public class Geo
 		double x = Math.cos(rlat1) * Math.sin(rlat2) - Math.sin(rlat1) * Math.cos(rlat2) * Math.cos(deltaLong);
 		double result = Math.toDegrees(Math.atan2(y, x));
 		return (result + 360.0) % 360.0;
+	}
+	/*
+	 * Calculate bearing between line on two points in latitude and longitude taking
+	 * @returns bearing in radians
+	 */
+	public static double bearingRad(double lat1, double lon1, double lat2, double lon2)
+	{
+		double deltaLong = Math.toRadians(lon2 - lon1);
+
+		double rlat1 = Math.toRadians(lat1);
+		double rlat2 = Math.toRadians(lat2);
+
+		double y = Math.sin(deltaLong) * Math.cos(rlat2);
+		double x = Math.cos(rlat1) * Math.sin(rlat2) - Math.sin(rlat1) * Math.cos(rlat2) * Math.cos(deltaLong);
+		double result = Math.atan2(y, x);
+		return result ;
+	}
+	/*
+	 * Calculate specific distance on 3 points in latitude and longitude taking
+	 * lat1, lon1 Start point; lat2, lon2 middle point; lat2, lon2 Last point
+	 * @returns hipotenuseDistance in Meters
+	 */
+	public static double calculateHipDist(double lat1, double lon1, double lat2, double lon2, double lat3, double lon3, double displacement)
+	{
+		double bearing1 = bearingRad(lat1,lon1,lat2,lon2);
+		double bearing2 = bearingRad(lat2,lon2,lat3,lon3);
+
+		double angleBetwin2Lines = Math.PI - bearing1 -bearing2;
+		double hipotenuseDistance = displacement/Math.sin(angleBetwin2Lines/2);
+
+		return hipotenuseDistance;
 	}
 	
 	public static double[] projection(double lat, double lon, double distance, double bearing)

@@ -272,7 +272,7 @@ public class AreaList extends ListFragment {
             mBorderPaint = new Paint();
             mBorderPaint.setAntiAlias(true);
             mBorderPaint.setStrokeWidth(1);
-            mBorderPaint.setStyle(Paint.Style.STROKE);
+            mBorderPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             mBorderPaint.setColor(context.getResources().getColor(R.color.areacolor));//todo - има нужда от уточняване кой и какъв е този цвят
 
             application = Borkozic.getApplication();
@@ -329,7 +329,7 @@ public class AreaList extends ListFragment {
             bm.eraseColor(Color.TRANSPARENT);
             Canvas bc = new Canvas(bm);
             mLinePaint.setColor(area.lineColor);
-            mBorderPaint.setColor(area.lineColor);
+            mBorderPaint.setColor(area.fillColor);
             bc.drawPath(mLinePath, mLinePaint);
             int half = Math.round(mPointWidth / 4);
             bc.drawCircle(12 * mDensity, 5 * mDensity, half, mFillPaint);

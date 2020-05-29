@@ -679,13 +679,13 @@ public class OziExplorerFiles
 				reader.close();
 				throw new IllegalArgumentException("Bad rt2 header");
 			}
-			/* H3,My area,show/hide,0
-			Field 0 : W
-			Field 1 : Name
-			Field 2 : Latitude - decimal degrees
-			Field 3 : Longitude - decimal degrees
-			Field 4 : Altitude - meters - added from me Boris Stoykov
-			Field 5 : Code - 0 if normal, 1 if silent
+			/* H3,My_area_NAME,show/hide,0(colorLine),0(colorFill)
+			 Field 0 : H3
+			 Field 1 : area name (no commas allowed)
+			 Field 2 : ???-проба да записва Show/hide
+			 Field 3 : area line color (RGB)
+			 Field 4 : area fill color (RGB)
+			 Field 5 : area fill color transparency (int)
 			*/
 			line = reader.readLine();
 			fields = CSV.parseLine(line);
@@ -713,7 +713,32 @@ public class OziExplorerFiles
 			catch (NumberFormatException e)
 			{
 			}
-			// W,Tsapelka,  58.0460242,  28.9465437,1500,0
+			try
+			{
+				int color = Integer.parseInt(fields[4]);
+				if (color != 0)
+					area.fillColor = bgr2rgb(color);
+			}
+			catch (NumberFormatException e)
+			{
+			}
+
+			try
+			{
+				area.AreaTransperency = Integer.parseInt(fields[5]);
+			}
+			catch (NumberFormatException e)
+			{
+			}
+			/*
+			 W,Tsapelka,  58.0460242,  28.9465437,1500,0
+			Field 0 : W
+			Field 1 : Name
+			Field 2 : Latitude - decimal degrees
+			Field 3 : Longitude - decimal degrees
+			Field 4 : Altitude - meters - added from me Boris Stoykov
+			Field 5 : Code - 0 if normal, 1 if silent
+			*/
 			while ((line = reader.readLine()) != null)
 			{
 				fields = CSV.parseLine(line);
@@ -775,8 +800,10 @@ public class OziExplorerFiles
 		// Field 0 : H3
 		// Field 1 : area name (no commas allowed)
 		// Field 2 : ???-проба да записва Show/hide
-		// Field 3 : area color (RGB)
-		writer.write("H3,"+area.name.replace(',', (char) 209)+"," + String.valueOf(area.show) + ","+String.valueOf(rgb2bgr(area.lineColor))+"\n");
+		// Field 3 : area line color (RGB)
+		// Field 4 : area fill color (RGB)
+		// Field 5 : area fill color transparency (int)
+		writer.write("H3,"+area.name.replace(',', (char) 209)+"," + String.valueOf(area.show) + ","+String.valueOf(rgb2bgr(area.lineColor))+ ","+String.valueOf(rgb2bgr(area.fillColor))+","+String.valueOf(area.AreaTransperency)+"\n");
 
 		/*AreaCenter
 		writer.write("C,");

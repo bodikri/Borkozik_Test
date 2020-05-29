@@ -238,6 +238,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     private int waypointSelected = -1;
     private int routeSelected = -1;
+    private int areaSelected = -1;
     private long mapObjectSelected = -1;
 
     private ILocationService locationService = null;
@@ -386,7 +387,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         map.initialize(application);
 
         dimView = new RelativeLayout(this);
-        //Зарежда навигация към точка (MapObject-Wpt)
+        //Зарежда навигация към точка ако има стартиран такъв (MapObject-Wpt)
         String navWpt = settings.getString(getString(R.string.nav_wpt), "");
         if (!"".equals(navWpt) && savedInstanceState == null)
         {
@@ -410,7 +411,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             startService(intent);
         }
         */
-        //Зарежда навигация по Маршрут
+        //Зарежда навигация по Маршрут ако има стартиран такъв
         String navRoute = settings.getString(getString(R.string.nav_route), "");
         if (!"".equals(navRoute) && settings.getBoolean(getString(R.string.pref_navigation_loadlast), getResources().getBoolean(R.bool.def_navigation_loadlast)) && savedInstanceState == null)
         {
@@ -512,7 +513,6 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         speedAbbr = resources.getStringArray(R.array.speed_abbrs)[speedIdx];
         speedUnit.setText(speedAbbr);
         int distanceIdx = Integer.parseInt(settings.getString(getString(R.string.pref_unitdistance), "0"));
-
         int elevationIdx = Integer.parseInt(settings.getString(getString(R.string.pref_unitelevation), "0"));
         elevationFactor = Double.parseDouble(resources.getStringArray(R.array.elevation_factors)[elevationIdx]);//множител който преобразува височината от метри в фити
         elevationAbbr = resources.getStringArray(R.array.elevation_abbrs)[elevationIdx];
@@ -544,13 +544,12 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         map.setTrackUp(settings.getString(getString(R.string.pref_maprotation), resources.getString(R.string.def_maprotation)));
         map.setBestMapEnabled(settings.getBoolean(getString(R.string.pref_mapbest), resources.getBoolean(R.bool.def_mapbest)));
         map.setBestMapInterval(settings.getInt(getString(R.string.pref_mapbestinterval), resources.getInteger(R.integer.def_mapbestinterval)) * 1000);
-        map.setCursorVector(Integer.parseInt(settings.getString(getString(R.string.pref_cursorvector), getString(R.string.def_cursorvector))),
-                settings.getInt(getString(R.string.pref_cursorvectormlpr), resources.getInteger(R.integer.def_cursorvectormlpr)));
+        map.setCursorVector(Integer.parseInt(settings.getString(getString(R.string.pref_cursorvector), getString(R.string.def_cursorvector))), settings.getInt(getString(R.string.pref_cursorvectormlpr), resources.getInteger(R.integer.def_cursorvectormlpr)));
         map.setProximity(Integer.parseInt(settings.getString(getString(R.string.pref_navigation_proximity), getString(R.string.def_navigation_proximity))));// Задава близост при достигане на която навигацията автоматично превключва на следваща точка
 
         // prepare views
         customizeLayout(settings);
-        findViewById(R.id.editroute).setVisibility(application.editingRoute != null || application.editingArea != null ? View.VISIBLE : View.GONE);//появяа се само при режим на редакция на маршрут
+        findViewById(R.id.editroute).setVisibility(application.editingRoute != null || application.editingArea != null ? View.VISIBLE : View.GONE);//появяа се само при режим на редакция на маршрут/зона
 
         if (application.editingTrack != null)
         {
@@ -1141,7 +1140,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-    protected void updateNavigationStatus()//Changed by Borko for Flaying usage-3D
+    protected void updateNavigationStatus()//Changed  for Flaying usage-3D
     {
         boolean isNavigating = navigationService != null && navigationService.isNavigating();
         boolean isNavigatingViaRoute = isNavigating && navigationService.isNavigatingViaRoute();
@@ -1521,7 +1520,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             application.routeOverlays.add(newRoute);
         }
         findViewById(R.id.editroute).setVisibility(View.VISIBLE);
-        Log.d(TAG, "startEditRoute");
+        //Log.d(TAG, "startEditRoute");
         updateGPSStatus();
         application.routeEditingWaypoints = new Stack<Waypoint>();
         if (showDistance > 0)
@@ -1538,10 +1537,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         boolean newarea = true;
         for (Iterator<AreaOverlay> iter = application.areaOverlays.iterator(); iter.hasNext();)
         {
-            AreaOverlay ro = iter.next();
-            if (ro.getArea().editing)
+            AreaOverlay аo = iter.next();
+            if (аo.getArea().editing)
             {
-                ro.onAreaPropertiesChanged();
+                аo.onAreaPropertiesChanged();
                 newarea = false;
             }
         }
@@ -1551,7 +1550,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             application.areaOverlays.add(newArea);
         }
         findViewById(R.id.editroute).setVisibility(View.VISIBLE);//използвам същият панел с бутони за едитване на маршрут
-        Log.d(TAG, "startEditArea");
+        //Log.d(TAG, "startEditArea");
         updateGPSStatus();
         application.areaEditingWaypoints = new Stack<Waypoint>();
         if (showDistance > 0)
@@ -1664,7 +1663,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
         else if (navigationService != null && navigationService.navRoute == application.getRoute(route))
         {
-            // routeSelected = route;
+            routeSelected = route;
             waypointSelected = index;
             rteQuickAction.show(map, x, y);
             return true;
@@ -1675,6 +1674,19 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             return true;
         }
     }
+    /*
+     * Performs action on a tapped area waypoint.
+     *
+     * @param area
+     *            area index
+     * @param index
+     *            waypoint index inside area
+     * @param x
+     *            view X coordinate
+     * @param y
+     *            view Y coordinate
+     * @return true if any action was performed
+     */
     public boolean areaWaypointTapped(int area, int index, int x, int y)
     {
         if (application.editingArea != null && application.editingArea == application.getArea(area))
@@ -1684,7 +1696,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
         else if (navigationService != null && navigationService.navArea == application.getArea(area))
         {
-            // routeSelected = route;
+            areaSelected = area;
             waypointSelected = index;
             rteQuickAction.show(map, x, y);
             return true;
@@ -1695,6 +1707,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             return true;
         }
     }
+
     public boolean mapObjectTapped(long id, int x, int y)
     {
         mapObjectSelected = id;
@@ -1741,16 +1754,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         menu.findItem(R.id.menuClearCurrentTrack).setEnabled(application.currentTrackOverlay != null);
         //menu.findItem(R.id.menuManageAreas).setVisible(!nva);
         menu.findItem(R.id.menuManageRoutes).setVisible(!nvr);//при стартиране на навигация по маршриут изчезва полето
-        menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);//полето се премахва от възможния избор за менюто
+        menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);//полето се премахва от възможния избор за менюто и се замества със две полета меню за следваща и предишна точка по маршрут при активиран маршрут
         menu.findItem(R.id.menuStartNavigation).setEnabled(rts);//ако има налични маршрути полето е активно
-        menu.findItem(R.id.menuStartArea).setEnabled(ars);//ако налични зони полето е активоно
-        menu.findItem(R.id.menuNavigationDetails).setVisible(nvr);
+        menu.findItem(R.id.menuStartArea).setEnabled(ars);//ако има налични зони полето става активоно
+        menu.findItem(R.id.menuNavigationDetails).setVisible(nvr);//полето се показва ако има стартирана навигация по маршриут
         menu.findItem(R.id.menuAreaDetails).setVisible(nva);//полето се показва само ако има стартирано авигация към зона
-        menu.findItem(R.id.menuNextNavPoint).setVisible(nvr);
-        menu.findItem(R.id.menuPrevNavPoint).setVisible(nvr);
+        menu.findItem(R.id.menuNextNavPoint).setVisible(nvr);//полето се показва ако има стартирана навигация по маршриут
+        menu.findItem(R.id.menuPrevNavPoint).setVisible(nvr);//полето се показва ако има стартирана навигация по маршриут
         menu.findItem(R.id.menuNextNavPoint).setEnabled(navigationService != null && navigationService.hasNextRouteWaypoint());//полето е активно при наличие на следваща точка по маршрута
         menu.findItem(R.id.menuPrevNavPoint).setEnabled(navigationService != null && navigationService.hasPrevRouteWaypoint());//полето е активно при наличие на предишна точка по маршрута
-        menu.findItem(R.id.menuStopNavigation).setEnabled(nvw);
+        menu.findItem(R.id.menuStopNavigation).setEnabled(nvw);//полето се показва ако има стартирана навигация към точка
         menu.findItem(R.id.menuStopNavigationArea).setEnabled(nva);// полето става неактивно
         menu.findItem(R.id.menuSetAnchor).setVisible(showDistance > 0 && !map.isFollowing());
         menu.findItem(R.id.menuPasteLocation).setEnabled(cbm);
@@ -2562,6 +2575,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         waypointSelected = savedInstanceState.getInt("waypointSelected");
         routeSelected = savedInstanceState.getInt("routeSelected");
+        areaSelected = savedInstanceState.getInt("areaSelected");
         mapObjectSelected = savedInstanceState.getLong("mapObjectSelected");
 
         /*
@@ -2587,6 +2601,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         outState.putInt("waypointSelected", waypointSelected);
         outState.putInt("routeSelected", routeSelected);
+        outState.putInt("areaSelected", areaSelected);
         outState.putLong("mapObjectSelected", mapObjectSelected);
 
         if (application.distanceOverlay != null)

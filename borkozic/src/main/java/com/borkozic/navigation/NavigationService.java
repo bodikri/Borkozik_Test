@@ -119,7 +119,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channelId");
 		builder.setContentIntent(contentIntent);
 		builder.setSmallIcon(R.drawable.ic_stat_navigation);
 		builder.setWhen(0);
@@ -172,6 +172,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 				if (start != -1)
 					setRouteWaypoint(start);
 			}
+			/*
 			if (action.equals(NAVIGATE_AREA))
 			{//не съм сигурен как действа този код и дали не трябва да добавя допълнителни константи които да отчитат добавеният от мен елемент
 				int index = extras.getInt(EXTRA_AREA_INDEX);
@@ -183,7 +184,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 				activity.putExtra("launch", HSIActivity.class);
 				contentIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, activity, PendingIntent.FLAG_CANCEL_CURRENT);
 				navigateTo(mo);
-			}
+			}*/
 		}
 		return START_STICKY;
 	}

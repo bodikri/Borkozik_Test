@@ -21,18 +21,24 @@
 package com.borkozic.navigation;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
@@ -54,6 +60,8 @@ public class NavigationService extends BaseNavigationService implements OnShared
 {
     private static final String TAG = "Navigation";
 	private static final int NOTIFICATION_ID = 24163;
+	private static final String NOTIFICATION_CHANNEL_ID = "com.borkozic.navigation";
+	private static final String ChannelName = "Background Navigation Service";
 	
 	private Borkozic application;
 	
@@ -119,17 +127,39 @@ public class NavigationService extends BaseNavigationService implements OnShared
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channelId");
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
 		builder.setContentIntent(contentIntent);
 		builder.setSmallIcon(R.drawable.ic_stat_navigation);
 		builder.setWhen(0);
 		builder.setContentTitle(getText(R.string.notif_nav_short));
 		builder.setContentText(getText(R.string.notif_nav_started));
 		notification = builder.build();
-
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+			startMyOwnForeground();
+		else
+			startForeground(NOTIFICATION_ID, new Notification());
 		Log.i(TAG, "Service started");
 	}
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	private void startMyOwnForeground(){
 
+		NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, ChannelName, NotificationManager.IMPORTANCE_NONE);
+		chan.setLightColor(Color.BLUE);
+		chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		assert manager != null;
+		manager.createNotificationChannel(chan);
+		/*
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+		Notification notification = notificationBuilder.setOngoing(true)
+				.setSmallIcon(R.drawable.info)
+				.setContentTitle("Borkozic is running in background")
+				.setPriority(NotificationManager.IMPORTANCE_MIN)
+				.setCategory(Notification.CATEGORY_SERVICE)
+				.build();*/
+		Log.d(TAG, "startMyOwnForeground");
+		startForeground(NOTIFICATION_ID, notification);
+	}
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{

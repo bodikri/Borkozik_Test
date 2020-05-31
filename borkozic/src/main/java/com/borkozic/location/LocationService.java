@@ -77,7 +77,7 @@ public class LocationService extends BaseLocationService implements LocationList
 	private static final String TAG = "Location";
 	private static final int NOTIFICATION_ID = 24161;
 	private static final String NOTIFICATION_CHANNEL_ID = "com.borkozic.location";
-	private static final String ChannelName = "My Background Service";
+	private static final String ChannelName = "Background Location Service";
 	private static final boolean DEBUG_ERRORS = false;
 	/**
 	 * Intent action to enable locating
@@ -375,7 +375,7 @@ public class LocationService extends BaseLocationService implements LocationList
 		builder.setOngoing(true);
 
 		Notification notification = builder.build(); //builder.getNotification();
-
+		Log.d(TAG, "getNotification");
 		return notification;
 	}
 
@@ -387,9 +387,8 @@ public class LocationService extends BaseLocationService implements LocationList
 	}
 	@RequiresApi(api = Build.VERSION_CODES.O)
 	private void startMyOwnForeground(){
-		String NOTIFICATION_CHANNEL_ID = "com.borkozic.location";
-		String channelName = "My Background Service";
-		NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
+
+		NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, ChannelName, NotificationManager.IMPORTANCE_NONE);
 		chan.setLightColor(Color.BLUE);
 		chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
 		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -403,7 +402,8 @@ public class LocationService extends BaseLocationService implements LocationList
 				.setPriority(NotificationManager.IMPORTANCE_MIN)
 				.setCategory(Notification.CATEGORY_SERVICE)
 				.build();
-		startForeground(2, notification);
+		Log.d(TAG, "startMyOwnForeground");
+		startForeground(NOTIFICATION_ID, notification);
 	}
 	private void openDatabase() {
 		Borkozic application = Borkozic.getApplication();

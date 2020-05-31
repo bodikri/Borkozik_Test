@@ -90,6 +90,29 @@ public class Geometric {
         final int[] result = {(int) (Math.round(New_dY)),(int) Math.round(New_dX)};
         return result;
     }
+    public static int[] CenterPoint(int[] p1, int[] p2, int[] p3) {
+
+        final double dY1 = (p1[1] - p2[1]);
+        final double dX1 = (p2[0] - p1[0]);
+        final double dY2 = (p2[1] - p3[1]);
+        final double dX2 = (p3[0] - p2[0]);
+        final double dY3 = (p1[1] - p3[1]);
+        final double dX3 = (p3[0] - p1[0]);
+
+        final double alphaInRads = Math.atan2(dY1, dX1);// Ъгълът който сключва правата с оста Ох
+        final double bethaInRads = Math.atan2(dY2, dX2);//Ъгълът който сключва правата с оста Ох
+        final double gamaInRads = Math.atan2(dY3, dX3);//Ъгълът който сключва правата с оста Ох
+        final double thetaInRads = bethaInRads-alphaInRads; //Ъгълът между двете прави
+        final double theta2InRads = alphaInRads-gamaInRads; //Ъгълът между двете прави
+        final double hipotenusa = Math.sqrt(dX1*dX1 + dY1*dY1);//разтоянието между първите 2 точки
+        final double anglesec = hipotenusa/(Math.tanh(thetaInRads/2)+Math.tanh(theta2InRads/2))*Math.sin(alphaInRads);//дължината на ъглополовящата
+        final double hipotenusaNew = anglesec*Math.sin(thetaInRads/2);
+        final double koef = Math.tan(alphaInRads+thetaInRads/2);
+        final double New_dY = Math.sqrt(hipotenusaNew*hipotenusaNew - koef*koef - 1);
+        final double New_dX = New_dY*koef;
+        final int[] result = {(int) (Math.round(New_dY)),(int) Math.round(New_dX)};
+        return result;
+    }
 /*
 const percentToHex = (p) => {
     const percent = Math.max(0, Math.min(100, p)); // bound percent from 0 to 100

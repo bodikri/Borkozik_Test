@@ -27,6 +27,7 @@ import java.util.Set;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -41,6 +42,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.GpsStatus.NmeaListener;
@@ -48,7 +50,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.location.OnNmeaMessageListener;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -57,6 +61,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
@@ -71,6 +76,8 @@ import com.borkozic.data.Track;
 public class LocationService extends BaseLocationService implements LocationListener, NmeaListener, GpsStatus.Listener, OnSharedPreferenceChangeListener {
 	private static final String TAG = "Location";
 	private static final int NOTIFICATION_ID = 24161;
+	private static final String NOTIFICATION_CHANNEL_ID = "com.borkozic.location";
+	private static final String ChannelName = "Background Location Service";
 	private static final boolean DEBUG_ERRORS = false;
 	/**
 	 * Intent action to enable locating
@@ -134,7 +141,7 @@ public class LocationService extends BaseLocationService implements LocationList
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		Log.e(TAG, "onCreate()");
 		lastKnownLocation = new Location("unknown");
 
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -146,8 +153,13 @@ public class LocationService extends BaseLocationService implements LocationList
 		onSharedPreferenceChanged(sharedPreferences, getString(R.string.pref_tracking_mindistance));
 
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-		Log.e(TAG, "Service started");
-		Log.i(TAG, "Service started");
+		//Log.e(TAG, "Service started");
+		//Log.i(TAG, "Service started");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+			startMyOwnForeground();
+		else
+			startForeground(NOTIFICATION_ID, new Notification());
+
 	}
 
 	@Override
@@ -299,11 +311,15 @@ public class LocationService extends BaseLocationService implements LocationList
 			}
 			try {
 				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-				//locationManager.addNmeaListener(mNmeaListener);//това може би не е нужно
-				//locationManager.addNmeaListener(this);// да проуча как трябва да го направя!!!
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+					//OnNmeaMessageListener mNmeaListener = null;
+					//locationManager.addNmeaListener(mNmeaListener);//това може би не е нужно
+					//locationManager.addNmeaListener((OnNmeaMessageListener) this);// todo - да проуча как трябва да го направя!!!
+				}
+
 				Log.d(TAG, "Gps provider set");
 			} catch (IllegalArgumentException e) {
-				Log.d(TAG, "Cannot set gps provider, likely no gps on device");
+				Log.d(TAG, "Cannot set gps provider, likely no gps " + "on device");
 			}
 			startForeground(NOTIFICATION_ID, getNotification());//изпраща съпбщение че има връзка и започва локацията, както и записа на следата
 		}
@@ -340,7 +356,9 @@ public class LocationService extends BaseLocationService implements LocationList
 			ntfId = R.drawable.ic_stat_failure;
 		}
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
 		builder.setWhen(errorTime);
 		builder.setSmallIcon(ntfId);
 		Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -357,7 +375,7 @@ public class LocationService extends BaseLocationService implements LocationList
 		builder.setOngoing(true);
 
 		Notification notification = builder.build(); //builder.getNotification();
-
+		Log.d(TAG, "getNotification");
 		return notification;
 	}
 
@@ -367,7 +385,26 @@ public class LocationService extends BaseLocationService implements LocationList
 			notificationManager.notify(NOTIFICATION_ID, getNotification());
 		}
 	}
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	private void startMyOwnForeground(){
 
+		NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, ChannelName, NotificationManager.IMPORTANCE_NONE);
+		chan.setLightColor(Color.BLUE);
+		chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		assert manager != null;
+		manager.createNotificationChannel(chan);
+
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+		Notification notification = notificationBuilder.setOngoing(true)
+				.setSmallIcon(R.drawable.info)
+				.setContentTitle("App is running in background")
+				.setPriority(NotificationManager.IMPORTANCE_MIN)
+				.setCategory(Notification.CATEGORY_SERVICE)
+				.build();
+		Log.d(TAG, "startMyOwnForeground");
+		startForeground(NOTIFICATION_ID, notification);
+	}
 	private void openDatabase() {
 		Borkozic application = Borkozic.getApplication();
 		if (application.dataPath == null) {

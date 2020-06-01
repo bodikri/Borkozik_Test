@@ -38,6 +38,7 @@ import com.borkozic.MapView;
 import com.borkozic.R;
 import com.borkozic.data.Area;
 import com.borkozic.data.Waypoint;
+import com.borkozic.util.Geometric;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class AreaOverlay extends MapOverlay{
 
     private int pointWidth = 10;
     private int areaWidth = 2;
-    private int areaInWidth = 1;
+    private int areaInWidth = 12;
     private boolean showNames;
 
     public AreaOverlay(final Activity mapActivity)
@@ -79,7 +80,7 @@ public class AreaOverlay extends MapOverlay{
         areaFillPaint = new Paint();
         areaFillPaint.setAntiAlias(false);
         areaFillPaint.setStrokeWidth(areaInWidth);
-        areaFillPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        areaFillPaint.setStyle(Paint.Style.STROKE);
         areaFillPaint.setColor(ContextCompat.getColor(context, R.color.areacolor));//linePaint.setColor(context.getResources().getColor(R.color.arealine));
 
         fillPaint = new Paint();
@@ -233,7 +234,8 @@ public class AreaOverlay extends MapOverlay{
         int i = 0;
         int lastX = 0, lastY = 0;
         int firstX = 0, firstY = 0;
-
+        final int[] fX = new int[2]; final int[] sX = new int[2]; final int[] tX = new int[2];
+        int secondX = 0, secondY = 0;
         List<Waypoint> waypoints = area.getWaypoints();
         synchronized (waypoints)
         {
@@ -244,11 +246,11 @@ public class AreaOverlay extends MapOverlay{
                 if (i == 0)
                 {
                     path.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);
-                    path2.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);//за да запълни зоната с друг цявчт
+                    //path2.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);//за да запълни зоната с друг цявчт
                     lastX = xy[0];
                     lastY = xy[1];
-                    firstX = xy[0];
-                    firstY = xy[1];
+                    firstX = xy[0]; fX[0]=xy[0];
+                    firstY = xy[1]; fX[1]=xy[1];
 
                 }
                 else
@@ -256,20 +258,35 @@ public class AreaOverlay extends MapOverlay{
                     if (Math.abs(lastX - xy[0]) > 2 || Math.abs(lastY - xy[1]) > 2)
                     {
                         path.lineTo(xy[0] - cxy[0], xy[1] - cxy[1]);
-                        path2.lineTo(xy[0] - cxy[0], xy[1] - cxy[1]);
+                        //path2.lineTo(xy[0] - cxy[0], xy[1] - cxy[1]);
                         lastX = xy[0];
                         lastY = xy[1];
 
                     }
+                }
+                if (i == 1)
+                {
+                    secondX = xy[0]; sX[0]=xy[0];
+                    secondY = xy[1]; sX[1]=xy[1];
+                    path2.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);
+                }
+                if (i == 2)
+                {
+                    tX[0]=xy[0];
+                    tX[1]=xy[1];
+                    //path2.setLastPoint(xy[0] - cxy[0], xy[1] - cxy[1]);
                 }
                 i++;
             }
             if (Math.abs(lastX - firstX) > 2 || Math.abs(lastY - firstY) > 2)
             {
                 path.lineTo(firstX - cxy[0], firstY - cxy[1]);// затваря фигурата
-                path2.lineTo(firstX - cxy[0], firstY - cxy[1]);// затваря фигурата
-            }
 
+
+                //path2.lineTo(firstX - cxy[0], firstY - cxy[1]);// затваря фигурата
+            }
+            int[] new_xy = Geometric.CenterPoint( fX, sX, tX);
+            path2.lineTo(new_xy[0] , new_xy[1] );// затваря фигурата
         }
 
 

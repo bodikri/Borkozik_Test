@@ -111,7 +111,7 @@ public class Borkozic extends BaseApplication
 	public static final int PATH_PLANES = 0x009;
 	public static final int ORDER_SHOW_PREFERENCE = 0;
 	public static final int ORDER_DRAW_PREFERENCE = 1;
-
+	private static final String TAG = "Borkozic";
 	public int coordinateFormat = 0;
 	public int angleType = 0;
 	public int sunriseType = 0;
@@ -711,7 +711,7 @@ public class Borkozic extends BaseApplication
 		while (peaks)
 		{
 			peaks = false;
-			//Log.d("ANDROZIC", s+","+peaks);
+			//Log.d("Borkozic", s+","+peaks);
 			for (int i = s; i > 0; i--)
 			{
 				Waypoint sp = route.getWaypoint(i-1);
@@ -721,8 +721,8 @@ public class Borkozic extends BaseApplication
 				double c = Geo.bearing(sp.latitude, sp.longitude, fp.latitude, fp.longitude);
 				double xtkMin = 0, xtkMax = 0;
 				int tpMin = 0, tpMax = 0;
-				//Log.d("ANDROZIC", "vector: "+i+","+c);
-				//Log.d("ANDROZIC", sp.name+"-"+fp.name+","+sp.proximity+"-"+fp.proximity);
+				//Log.d("Borkozic", "vector: "+i+","+c);
+				//Log.d("Borkozic", sp.name+"-"+fp.name+","+sp.proximity+"-"+fp.proximity);
 				for (int j = sp.proximity; j < fp.proximity; j++)
 				{
 					tp = points.get(j);
@@ -750,7 +750,7 @@ public class Borkozic extends BaseApplication
 				{
 					tp = points.get(tpMin);
 					route.insertWaypoint(i-1, "RWPT", tp.latitude, tp.longitude, tp.elevation).proximity = tpMin;
-					//Log.w("ANDROZIC", "min peak: "+s+","+tpMin+","+xtkMin);
+					//Log.w("Borkozic", "min peak: "+s+","+tpMin+","+xtkMin);
 					s++;
 					peaks = true;
 				}
@@ -759,12 +759,12 @@ public class Borkozic extends BaseApplication
 					tp = points.get(tpMax);
 					int after = xtkMin < -proximity && tpMin < tpMax ? i : i-1;
 					route.insertWaypoint(after, "RWPT", tp.latitude, tp.longitude, tp.elevation).proximity = tpMax;
-					//Log.w("ANDROZIC", "max peak: "+s+","+tpMax+","+xtkMax);
+					//Log.w("Borkozic", "max peak: "+s+","+tpMax+","+xtkMax);
 					s++;
 					peaks = true;
 				}
 			}
-			//Log.d("ANDROZIC", s+","+peaks);
+			//Log.d("Borkozic", s+","+peaks);
 			if (s > 500) peaks = false;
 		}
 		s = 0;
@@ -808,7 +808,7 @@ public class Borkozic extends BaseApplication
 			{
 				t = t - 360*Math.signum(t);
 			}
-			//Log.d("ANDROZIC", i+","+b+","+t);
+			//Log.d("Borkozic", i+","+b+","+t);
 			lp = cp;
 			pb = b;
 			i++;
@@ -823,7 +823,7 @@ public class Borkozic extends BaseApplication
 					t = 0;
 					icb = cb + 180;
 					if (icb >= 360) icb -= 360;
-					// Log.w("ANDROZIC", "Found vector:" + cb);
+					// Log.w("Borkozic", "Found vector:" + cb);
 				}
 				continue;
 			}
@@ -833,7 +833,7 @@ public class Borkozic extends BaseApplication
 				if (tp == null)
 				{
 					tp = cp;
-					// Log.w("ANDROZIC", "Found turn: "+i);
+					// Log.w("Borkozic", "Found turn: "+i);
 					continue;
 				}
 			}
@@ -841,7 +841,7 @@ public class Borkozic extends BaseApplication
 			{
 				tp = null;
 				xtk = 0;
-				// Log.w("ANDROZIC", "Reset turn: "+i);
+				// Log.w("Borkozic", "Reset turn: "+i);
 			}
 			// if turn in progress check xtk
 			if (tp != null)
@@ -852,13 +852,13 @@ public class Borkozic extends BaseApplication
 				// turned at sharp angle
 				if (xtk == Double.NEGATIVE_INFINITY)
 					xtk = Geo.xtk(xd, cb, xb);
-				// Log.w("ANDROZIC", "XTK: "+xtk);
+				// Log.w("Borkozic", "XTK: "+xtk);
 				if (Math.abs(xtk) > proximity * 3)
 				{
 					lrp = tp;
 					route.addWaypoint("RWPT"+route.length(), lrp.latitude, lrp.longitude, lrp.elevation);
 					cb = Geo.bearing(lrp.latitude, lrp.longitude, cp.latitude, cp.longitude);
-					// Log.e("ANDROZIC", "Set WPT: "+(route.length()-1)+","+cb);
+					// Log.e("Borkozic", "Set WPT: "+(route.length()-1)+","+cb);
 					pb = cb;
 					t = 0;
 					icb = cb + 180;
@@ -874,7 +874,7 @@ public class Borkozic extends BaseApplication
 			{
 				lrp = cp;
 				route.addWaypoint("RWPT"+route.length(), lrp.latitude, lrp.longitude, lrp.elevation);
-				// Log.e("ANDROZIC", "Set WPT: "+(route.length()-1));
+				// Log.e("Borkozic", "Set WPT: "+(route.length()-1));
 				d = 0;
 			}
 		}
@@ -1567,7 +1567,7 @@ public class Borkozic extends BaseApplication
 	}
 
 	public void enableLocating(boolean enable)
-	{
+	{Log.e(TAG, "enableLocating()");
 		String action = enable ? LocationService.ENABLE_LOCATIONS : LocationService.DISABLE_LOCATIONS;
 		startService(new Intent(this, LocationService.class).setAction(action));
 	}
@@ -2028,8 +2028,7 @@ public Drawable getDependVeDrawable (int id, Resources res)//моя метод
 	public void onCreate()
 	{
 		super.onCreate();
-		Log.e("ANDROZIC","Application onCreate()");
-
+		Log.e(TAG, "App onCreate()");
 		setInstance(this);
 		handler = new Handler();
 		

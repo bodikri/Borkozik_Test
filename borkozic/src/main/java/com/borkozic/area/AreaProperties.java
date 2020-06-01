@@ -1,5 +1,8 @@
 package com.borkozic.area;
+/*
+клас в който се задават глобалните настройки на конкретната Зона:Име, цвят контур, Цвят, полупрозрачност
 
+ */
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,6 +74,10 @@ public class AreaProperties extends Activity {
 
         seekBarAreaTransparency = (SeekBar) findViewById(R.id.seekBar);
         seekBarAreaTransparency.setMax( 200 );
+        if (area.AreaTransperency < 0)
+        {//todo - по това ще разбирам че за първи път се създава и е необходимопри натискане на бутона DONE - да отваря MapActivity в режим EDIT
+            area.AreaTransperency = getResources().getInteger(R.integer.def_area_transparensy);//при първоначално зареждане по дефолт
+        }
         //area.AreaTransperency = getResources().getInteger(R.integer.def_area_transparensy);//todo - да се постави във settings - default transparency
         seekBarAreaTransparency.setProgress(area.AreaTransperency);//todo -- не знам как да го направя както горните два атрибута на color
         textViewProcentage.setText(""+ area.AreaTransperency + "%");
@@ -133,12 +140,12 @@ public class AreaProperties extends Activity {
         colorLine = null;
         colorArea = null;
     }
-
+/* -неуспешен опит да преобразувам процентите (0-255) в (0-100)
     private int percentToInt (int p)
 
     {
     int percent = Math.max(10, Math.min(100, p)); // bound percent from 0 to 100
     int intValue = Math.round( p / 100 * 255); // map percent to nearest integer (0 - 255)
         return intValue;
-    }
+    }*/
 }

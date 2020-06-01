@@ -61,6 +61,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.borkozic.area.AreaDetails;
+import com.borkozic.area.AreaEdit;
 import com.borkozic.area.AreaList;
 import com.borkozic.area.AreaListActivity;
 import com.borkozic.data.Area;
@@ -1412,6 +1413,11 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 ro.onBeforeDestroy();
             }
             application.routeOverlays.clear();
+            for (AreaOverlay ao : application.areaOverlays)
+            {
+                ao.onBeforeDestroy();
+            }
+            application.areaOverlays.clear();
             if (application.waypointsOverlay != null)
             {
                 application.waypointsOverlay.onBeforeDestroy();
@@ -1426,6 +1432,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             for (RouteOverlay ro : application.routeOverlays)
             {
                 ro.onPreferencesChanged(settings);
+            }
+            for (AreaOverlay ao : application.areaOverlays)
+            {
+                ao.onPreferencesChanged(settings);
             }
             if (application.waypointsOverlay != null)
             {
@@ -1678,7 +1688,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     {
         if (application.editingArea != null && application.editingArea == application.getArea(area))
         {
-            startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("ROUTE", area + 1), RESULT_EDIT_AREA);
+            startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("AREA", area + 1), RESULT_EDIT_AREA);
             return true;
         }
         else if (navigationService != null && navigationService.navArea == application.getArea(area))
@@ -2118,6 +2128,14 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         ro.onRoutePropertiesChanged();
                 }
                 break;
+            case RESULT_EDIT_AREA:
+                for (Iterator<AreaOverlay> iter = application.areaOverlays.iterator(); iter.hasNext();)
+                {
+                    AreaOverlay ao = iter.next();
+                    if (ao.getArea().editing)
+                        ao.onAreaPropertiesChanged();
+                }
+                break;
             case RESULT_LOAD_MAP:
                 if (resultCode == RESULT_OK)
                 {
@@ -2399,7 +2417,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             case R.id.orderpoints://показва детайли за реда на точките по маршрута/зона
                 if (application.editingArea != null)
                 {
-                    startActivityForResult(new Intent(this, RouteEdit.class).putExtra("INDEX", application.getAreaIndex(application.editingArea)), RESULT_EDIT_AREA);
+                    startActivityForResult(new Intent(this, AreaEdit.class).putExtra("INDEX", application.getAreaIndex(application.editingArea)), RESULT_EDIT_AREA);
                 }else {
                     startActivityForResult(new Intent(this, RouteEdit.class).putExtra("INDEX", application.getRouteIndex(application.editingRoute)), RESULT_EDIT_ROUTE);
                 }
@@ -2418,7 +2436,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                     }
                     application.editingArea = null;
                     application.areaEditingWaypoints = null;
-                    findViewById(R.id.editroute).setVisibility(View.GONE);//лентата с която се редактира маршрута изчезва
+                    findViewById(R.id.editroute).setVisibility(View.GONE);//лентата с която се редактира маршрута/зоната изчезва - използва същата лената и а маршрута
                     updateGPSStatus();
                     if (showDistance == 2) {
                         application.distanceOverlay.setEnabled(true);

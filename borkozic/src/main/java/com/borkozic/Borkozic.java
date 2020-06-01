@@ -1545,13 +1545,14 @@ public class Borkozic extends BaseApplication
 		sendBroadcast(new Intent("com.borkozic.plugins.action.FINALIZE"));
 
 		clearRoutes();
+		clearAreas();
 		clearTracks();
 		clearWaypoints();
 		clearWaypointSets();
 		clearMapObjects();
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putString(getString(R.string.loc_last), StringFormatter.coordinates(0, " ", mapCenter[0], mapCenter[1]));
-		editor.commit();//todo трябва ли да го заменя с apply
+		editor.apply();//todo трябва ли да го заменя с apply
 		
 		stopService(new Intent(this, NavigationService.class));
 		stopService(new Intent(this, LocationService.class));

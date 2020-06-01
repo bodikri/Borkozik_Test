@@ -1,7 +1,8 @@
 # Default ignored files
 /workspace.xml
 *.iml
-.gradle
+/.idea
+/.gradle
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries

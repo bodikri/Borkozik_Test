@@ -173,7 +173,7 @@ public class NavigationService extends BaseNavigationService implements OnShared
 					setRouteWaypoint(start);
 			}
 			if (action.equals(NAVIGATE_AREA))
-			{//не съм сигурен как действа този код и дали не трябва да добавя допълнителни константи които да отчитат добавеният от мен елемент
+			{//todo - не съм сигурен как действа този код и дали не трябва да добавя допълнителни константи които да отчитат добавеният от мен елемент
 				int index = extras.getInt(EXTRA_AREA_INDEX);
 				MapObject mo = new MapObject();
 				mo.name = extras.getString(EXTRA_NAME);// EXTRA_NAME_AREA

@@ -1643,6 +1643,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         if (application.editingRoute != null && application.editingRoute == application.getRoute(route))
         {
             startActivityForResult(new Intent(this, WaypointProperties.class).putExtra("INDEX", index).putExtra("ROUTE", route + 1), RESULT_EDIT_ROUTE);
+            Log.e(TAG, "startActivityForResult_WaypointProperties:" + "putExtra_INDEX" + index);
             return true;
         }
         else if (navigationService != null && navigationService.navRoute == application.getRoute(route))
@@ -1650,11 +1651,13 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             routeSelected = route;
             waypointSelected = index;
             rteQuickAction.show(map, x, y);
+            Log.e(TAG, "rteQuickAction");
             return true;
         }
         else
         {
-            startActivity(new Intent(this, RouteDetails.class).putExtra("INDEX", route));
+            startActivity(new Intent(this, RouteDetails.class).putExtra("index", route));
+           //Log.e(TAG, "startActivity:" + "RouteDetails_putExtra_INDEX" + route);
             return true;
         }
     }
@@ -1740,7 +1743,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         menu.findItem(R.id.menuManageRoutes).setVisible(!nvr);//при стартиране на навигация по маршриут изчезва полето
         menu.findItem(R.id.menuStartNavigation).setVisible(!nvr);//полето се премахва от възможния избор за менюто и се замества със две полета меню за следваща и предишна точка по маршрут при активиран маршрут
         menu.findItem(R.id.menuStartNavigation).setEnabled(rts);//ако има налични маршрути полето е активно
-        menu.findItem(R.id.menuStartArea).setEnabled(ars);//ако има налични зони полето става активоно
+        menu.findItem(R.id.menuStartArea).setEnabled(ars);//ако има налични зони полето става активоно - за сега няма вързана активност
         menu.findItem(R.id.menuNavigationDetails).setVisible(nvr);//полето се показва ако има стартирана навигация по маршриут
         menu.findItem(R.id.menuAreaDetails).setVisible(nva);//полето се показва само ако има стартирано авигация към зона
         menu.findItem(R.id.menuNextNavPoint).setVisible(nvr);//полето се показва ако има стартирана навигация по маршриут
@@ -1825,6 +1828,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             case R.id.menuManageAreas://todo - да се уточни и направи да действа
                 //Log.e(TAG, "on_menuManageAreas");
                 startActivityForResult(new Intent(this, AreaListActivity.class).putExtra("MODE", AreaList.MODE_MANAGE), RESULT_MANAGE_AREAS);
+                return true;
+            case R.id.menuStartArea://todo - да се уточни и направи да действа
+                //Log.e(TAG, "on_menuManageAreas");
+                startActivity(new Intent(this, AreaListActivity.class).putExtra("MODE", AreaList.MODE_START));
                 return true;
             case R.id.menuStartNavigation:
                 if (application.getRoutes().size() > 1)

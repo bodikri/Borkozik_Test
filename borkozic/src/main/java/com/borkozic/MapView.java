@@ -941,7 +941,37 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 					break;
 		}
 	}
+/*
+	private void onLongPress(int x, int y)//при докосване на обект по картата да го рзпознава
+	{//Когато картата е завъртяна когато искаш да уцелиш точка от маршрута как да стане?
+		//да се има в предвид че освен завъртане има и преместване заради Look Ahead!!!
+		// което означава че същите действия в обратна последователност трябва да се извършат над точката на докосване за да съвпадне с това което се вижда на екрана
+		synchronized (lock)
+		{
+			int mapTapX;
+			int mapTapY;
+			if (isTrackUp) {
+				double rad = Math.toRadians(-bearing);
+				int dX = (int) ((x - getWidth() / 2) * Math.cos(rad) + (y - lookAheadXY[1] - getHeight() / 2) * Math.sin(rad));
+				int dY = (int) ((x - getWidth() / 2) * Math.sin(-rad) + (y - lookAheadXY[1] - getHeight() / 2) * Math.cos(rad));
+				mapTapX = mapCenterXY[0];// + x - getWidth() / 2;
+				mapTapY = mapCenterXY[1];//+ y - getHeight() / 2;
+				mapTapX += dX;// lookAheadXY[0] = 0
+				mapTapY += dY;
+			}else {
+				mapTapX = x + mapCenterXY[0] - getWidth() / 2;
+				mapTapY = y + mapCenterXY[1] - getHeight() / 2;
+				mapTapX -= lookAheadXY[0];
+				mapTapY -= lookAheadXY[1];
+			}
 
+			int dt = GESTURE_THRESHOLD_DP / 2;//Праг на чувствителност - създава квадратче с размер dt в което търси съвпадение на обект
+			Rect tap = new Rect(mapTapX - dt, mapTapY - dt, mapTapX + dt, mapTapY + dt);
+			for (MapOverlay mo : application.getOverlays(Borkozic.ORDER_SHOW_PREFERENCE))
+				if (mo.onLongPress(upEvent, tap, this))
+					break;
+		}
+	}*/
 	private void onDoubleTap(int x, int y)
 	{
 		setFollowingThroughContext(!isFollowing);

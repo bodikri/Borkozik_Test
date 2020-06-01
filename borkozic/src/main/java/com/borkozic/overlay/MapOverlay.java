@@ -110,7 +110,7 @@ public abstract class MapOverlay
 		return false;
 	}
 
-	public boolean onLongPress(MotionEvent e, MapView mapView)
+	public boolean onLongPress(MotionEvent e, Rect mapTap, MapView mapView)
 	{
 		return false;
 	}

@@ -35,7 +35,8 @@ import com.borkozic.R;
 import com.borkozic.data.Waypoint;
 import com.borkozic.navigation.NavigationService;
 import com.borkozic.util.StringFormatter;
-
+//todo - da направя всяка точка по маршрут да се добавя автоматично в някакъв RutesWaypointList,  за да може да се редактират тези точки
+//понеже не е направено да се редактират точките вкарани в някакъв маршрут
 public class WaypointListActivity extends AppCompatActivity implements OnWaypointActionListener
 {
 	private Borkozic application;

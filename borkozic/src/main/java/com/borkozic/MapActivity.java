@@ -48,7 +48,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -151,7 +150,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private static final int qaNavigateToWaypoint = 2;
     private static final int qaNavigateToMapObject = 2;
 
-    private static final int qaAddWaypointToArea = 1;
+    private static final int qaAddWaypointToArea = 3;
 
     private static final int SCREEN_ORIENTATION_PORTRAIT = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 
@@ -211,7 +210,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     protected SeekBar trackBar;
     protected TextView waitBar;
     protected MapView map;
-    protected QuickAction3D wptQuickAction;
+    protected QuickAction3D wptQuickActionAddToRoute; //активира действие при натискане за добавяне на точка към маршрут
+    protected QuickAction3D wptQuickActionAddToArea;
     protected QuickAction3D rteQuickAction;
     protected QuickAction3D mobQuickAction;
     private ViewGroup dimView;
@@ -352,9 +352,13 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         panel.setOnPanelListener(this);
         panel.setInterpolator(new ExpoInterpolator(Type.OUT));
 
-        wptQuickAction = new QuickAction3D(this, QuickAction3D.VERTICAL);//ContextCompat.getDrawable(getActivity(), R.drawable.ic_action_add);
-        wptQuickAction.addActionItem(new ActionItem(qaAddWaypointToRoute, getString(R.string.menu_addtoroute), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_action_add, null)));
-        wptQuickAction.setOnActionItemClickListener(waypointActionItemClickListener);//resources.getDrawable(R.drawable.ic_action_add)));
+        wptQuickActionAddToRoute = new QuickAction3D(this, QuickAction3D.VERTICAL);//ContextCompat.getDrawable(getActivity(), R.drawable.ic_action_add);
+        wptQuickActionAddToRoute.addActionItem(new ActionItem(qaAddWaypointToRoute, getString(R.string.menu_addtoroute), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_action_add, null)));
+        wptQuickActionAddToRoute.setOnActionItemClickListener(waypointActionItemClickListener);//resources.getDrawable(R.drawable.ic_action_add)));
+
+        wptQuickActionAddToArea = new QuickAction3D(this, QuickAction3D.VERTICAL);
+        wptQuickActionAddToArea.addActionItem(new ActionItem(qaAddWaypointToArea, getString(R.string.menu_addtoarea), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_action_add, null)));
+        wptQuickActionAddToArea.setOnActionItemClickListener(waypointActionItemClickListener);//resources.getDrawable(R.drawable.ic_action_add)));
 
         rteQuickAction = new QuickAction3D(this, QuickAction3D.VERTICAL);
         rteQuickAction.addActionItem(new ActionItem(qaNavigateToWaypoint, getString(R.string.menu_thisnavpoint), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_action_directions, null)));
@@ -365,7 +369,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         mobQuickAction.setOnActionItemClickListener(mapObjectActionItemClickListener);
 
         trackBar.setOnSeekBarChangeListener(this);
-//Да се заредят planeLogo and size
+        //Да се заредят planeLogo and size
         //onSharedPreferenceChanged(settings, getString(R.string.pref_exit));
         map.planeLogo = (application.planePath).substring(36);
         map.setMovingCursorSize(settings.getInt("planelogosize", resources.getInteger(R.integer.def_planelogosize)));
@@ -1513,7 +1517,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             RouteOverlay newRoute = new RouteOverlay(this, application.editingRoute);
             application.routeOverlays.add(newRoute);
         }
-        findViewById(R.id.editroute).setVisibility(View.VISIBLE);
+        findViewById(R.id.editroute).setVisibility(View.VISIBLE); //използвам същият панел с бутони за едитване на маршрут
         //Log.d(TAG, "startEditRoute");
         updateGPSStatus();
         application.routeEditingWaypoints = new Stack<Waypoint>();
@@ -1538,7 +1542,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 newarea = false;
             }
         }
-        if (newarea)
+        if (newarea) //не са въвеждани точки в зоната
         {
             AreaOverlay newArea = new AreaOverlay(this, application.editingArea);
             application.areaOverlays.add(newArea);
@@ -1610,7 +1614,14 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             {
                 routeSelected = -1;
                 waypointSelected = application.getWaypointIndex(waypoint);
-                wptQuickAction.show(map, x, y);
+                wptQuickActionAddToRoute.show(map, x, y);
+                return true;
+            }
+            else if (application.editingArea != null)
+            {
+                areaSelected = -1;
+                waypointSelected = application.getWaypointIndex(waypoint);
+                wptQuickActionAddToArea.show(map, x, y);
                 return true;
             }
             else
@@ -1975,6 +1986,11 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             {
                 case qaAddWaypointToRoute:
                     application.routeEditingWaypoints.push(application.editingRoute.addWaypoint(wpt.name, wpt.latitude, wpt.longitude, wpt.altitude));
+                    map.invalidate();
+                    break;
+
+                case qaAddWaypointToArea:
+                    application.areaEditingWaypoints.push(application.editingArea.addWaypoint(wpt.name, wpt.latitude, wpt.longitude, wpt.altitude));
                     map.invalidate();
                     break;
             }

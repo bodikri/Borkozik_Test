@@ -136,7 +136,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 
 	private SurfaceHolder cachedHolder;
 	private DrawingThread drawingThread;
-	private Object lock = new Object();
+	private final Object lock = new Object();
 
 	private MultiTouchController<Object> multiTouchController;
 	private float pinch = 0;
@@ -937,7 +937,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 			int dt = GESTURE_THRESHOLD_DP / 2;//Праг на чувствителност - създава квадратче с размер dt в което търси съвпадение на обект
 			Rect tap = new Rect(mapTapX - dt, mapTapY - dt, mapTapX + dt, mapTapY + dt);
 			for (MapOverlay mo : application.getOverlays(Borkozic.ORDER_SHOW_PREFERENCE))
-				if (mo.onSingleTap(upEvent, tap, this))
+				if (mo.onSingleTap(upEvent, tap, this))//изпраща Event но кой го прихваща?
 					break;
 		}
 	}

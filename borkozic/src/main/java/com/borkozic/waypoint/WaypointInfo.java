@@ -25,10 +25,12 @@
 package com.borkozic.waypoint;
 
 import java.io.File;
+import java.util.Objects;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.graphics.Bitmap;
@@ -40,6 +42,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 //import androidx.core.app.DialogFragment;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -79,6 +82,7 @@ public class WaypointInfo extends DialogFragment implements OnClickListener
 		icon = null;
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState)
 	{
@@ -99,19 +103,22 @@ public class WaypointInfo extends DialogFragment implements OnClickListener
     }
 
 	@Override
-	public void onAttach(Activity activity)
+	public void onAttach(@NonNull Context context)
 	{
-		super.onAttach(activity);
-
+		super.onAttach(context);
+		Activity act = null;
+		if (context instanceof Activity){
+			act=(Activity) context;
+		}
 		// This makes sure that the container activity has implemented
 		// the callback interface. If not, it throws an exception
 		try
 		{
-			waypointActionsCallback = (OnWaypointActionListener) activity;
+			waypointActionsCallback = (OnWaypointActionListener) act;
 		}
 		catch (ClassCastException e)
 		{
-			throw new ClassCastException(activity.toString() + " must implement OnWaypointActionListener");
+			throw new ClassCastException(act.toString() + " must implement OnWaypointActionListener");
 		}
 	}
 
@@ -179,6 +186,7 @@ public class WaypointInfo extends DialogFragment implements OnClickListener
 			}
 		}
 
+		assert view != null;
 		WebView description = (WebView) view.findViewById(R.id.description);
 		
 		if ("".equals(waypoint.description))
@@ -191,10 +199,11 @@ public class WaypointInfo extends DialogFragment implements OnClickListener
 			try
 			{
 				TypedValue tv = new TypedValue();
+				assert activity != null;
 				Theme theme = activity.getTheme();
 				//Resources resources = getResources();
 				theme.resolveAttribute(android.R.attr.textColorSecondary, tv, true);
-				int secondaryColor = ContextCompat.getColor(getContext(), tv.resourceId);
+				int secondaryColor = ContextCompat.getColor(Objects.requireNonNull(getContext()), tv.resourceId);
 
 				String css = String.format("<style type=\"text/css\">html,body{margin:0;background:transparent} *{color:#%06X}</style>\n", (secondaryColor & 0x00FFFFFF));
 				descriptionHtml = css + waypoint.description;
@@ -245,11 +254,13 @@ public class WaypointInfo extends DialogFragment implements OnClickListener
 			((TextView) view.findViewById(R.id.date)).setText(DateFormat.getDateFormat(activity).format(waypoint.date)+" "+DateFormat.getTimeFormat(activity).format(waypoint.date));
 		else
 			((TextView) view.findViewById(R.id.date)).setVisibility(View.GONE);
-		
-		if (icon != null)
+		assert dialog != null;
+		if (icon != null) {
 			dialog.setFeatureDrawable(Window.FEATURE_LEFT_ICON, icon);
-		else
+		}
+		else {
 			dialog.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_map);
+		}
 		
 		dialog.setTitle(waypoint.name);
 	}

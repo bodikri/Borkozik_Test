@@ -35,12 +35,14 @@ public class Geometric {
      * NOTE: Remember that most math has the Y axis as positive above the X. However, for screens we have Y as positive below. For this reason,
      * the Y values are inverted to get the expected results.
      */
-    public static double angleOf(PointF p1, PointF p2) {
-        final double dY = (p1.y - p2.y);
-        final double dX = (p2.x - p1.x);
+    public static double angleOf(int[] p1, int[] p2) {//PointF p1, PointF p2
+        final int dY = (p1[1] - p2[1]);
+        final int dX = (p2[0] - p1[0]);
         final double inRads = Math.atan2(dY, dX);
        // final double result = Math.toDegrees(Math.atan2(dY, dX));
-        return (inRads < 0) ? (2 * Math.PI + inRads) : inRads;
+        //return (inRads < 0) ? (2 * Math.PI + inRads) : inRads;
+        double resInRad =  (inRads < 0) ? (2 * Math.PI + inRads) : inRads;
+        return Math.toDegrees(resInRad);
     }
     /*
      * Calculate the angle between two lines.
@@ -60,17 +62,19 @@ public class Geometric {
      * NOTE: Remember that most math has the Y axis as positive above the X. However, for screens we have Y as positive below. For this reason,
      * the Y values are inverted to get the expected results.
      */
-    public static double angleBetween(PointF p1, PointF p2, PointF p3) {
+    public static double angleBetween(int[] p1, int[] p2, int[] p3) {
 
-        final double dY1 = (p1.y - p2.y);
-        final double dX1 = (p2.x - p1.x);
-        final double dY2 = (p2.y - p3.y);
-        final double dX2 = (p3.x - p2.x);
+        final double dY1 = (p1[1] - p2[1]);
+        final double dX1 = (p2[0] - p1[0]);
+        final double dY2 = (p2[1] - p3[1]);
+        final double dX2 = (p3[0] - p2[0]);
 
         final double alphaInRads = Math.atan2(dY1, dX1);
         final double bethaInRads = Math.atan2(dY2, dX2);
         final double thetaInRads =bethaInRads-alphaInRads;
-        return (thetaInRads < 0) ? (2 * Math.PI + thetaInRads) : thetaInRads;
+        //return (thetaInRads < 0) ? (2 * Math.PI + thetaInRads) : thetaInRads;
+        double resInRad = (thetaInRads < 0) ? (2 * Math.PI + thetaInRads) : thetaInRads;
+        return Math.toDegrees(resInRad);
     }
 
     public static int[] newPointF(int[] p1, int[] p2, int[] p3, double d) {
@@ -105,7 +109,7 @@ public class Geometric {
         final double thetaInRads = bethaInRads-alphaInRads; //Ъгълът между двете прави
         final double theta2InRads = alphaInRads-gamaInRads; //Ъгълът между двете прави
         final double hipotenusa = Math.sqrt(dX1*dX1 + dY1*dY1);//разтоянието между първите 2 точки
-        final double anglesec = hipotenusa/(Math.tanh(thetaInRads/2)+Math.tanh(theta2InRads/2))*Math.sin(alphaInRads);//дължината на ъглополовящата
+        final double anglesec = hipotenusa*(Math.tanh(thetaInRads/2)*Math.tanh(theta2InRads/2))/(Math.tanh(thetaInRads/2)+Math.tanh(theta2InRads/2))*Math.sin(alphaInRads/2);//дължината на ъглополовящата
         final double hipotenusaNew = anglesec*Math.sin(thetaInRads/2);
         final double koef = Math.tan(alphaInRads+thetaInRads/2);
         final double New_dY = Math.sqrt(hipotenusaNew*hipotenusaNew - koef*koef - 1);

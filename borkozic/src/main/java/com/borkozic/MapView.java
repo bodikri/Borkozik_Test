@@ -424,7 +424,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 
 		}
 
-		if (!scaled && !isFollowing)
+		if (!scaled && !isFollowing)//когато не е в режим на следване
 		{
 			canvas.drawCircle(0, 0, 1, crossPaint);
 			canvas.drawCircle(0, 0, 40, crossPaint);
@@ -434,7 +434,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 			canvas.drawLine(0, -20, 0, -120, crossPaint);
 		}
 
-		if (isMoving && isFollowing && isFixed)
+		if (isMoving && isFollowing && isFixed)//плавно отместване самолетчето назад при стартирване на Follwing(режим на следване)
 		{
 			lookAheadC = lookAhead;
 		}
@@ -449,7 +449,6 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		synchronized (lock)
 		{
 			bearing = loc.getBearing();//bearing = application.bearingSet;
-
 			speed = loc.getSpeed();
 
 			if (currentLocation == null)
@@ -743,8 +742,8 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		{
 			try
 			{
-				MapActivity androzic = (MapActivity) getContext();
-				androzic.setFollowing(!isFollowing);
+				MapActivity borkozic = (MapActivity) getContext();
+				borkozic.setFollowing(!isFollowing);
 			}
 			catch (Exception e)
 			{
@@ -1314,7 +1313,6 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	{
 		pinch = 0;
 		scale = 1;
-
 		return this;
 	}
 
@@ -1329,7 +1327,6 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		if (obj == null)
 		{
 			pinch = 0;
-			//fingerBearing=0;
 			Log.e(TAG, "Scale: " + scale);
 			try
 			{

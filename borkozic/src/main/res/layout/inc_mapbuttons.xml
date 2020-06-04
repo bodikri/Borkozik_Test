@@ -27,7 +27,7 @@
             android:layout_width="69dp"
             android:layout_height="wrap_content"
             android:id="@+id/norm_button" />
-
+<!--
         <ImageButton
             android:id="@+id/zoomin"
             android:layout_width="wrap_content"
@@ -45,6 +45,15 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/zoom_out" />
+-->
+        <ImageButton
+            android:id="@+id/northUp"
+            android:layout_width="wrap_content"
+            android:layout_height="99dp"
+            android:background="@null"
+            android:paddingTop="8dip"
+            android:paddingBottom="8dip"
+            android:src="@drawable/compass_needle_north_blue" />
 
         <ImageButton
             android:id="@+id/nextmap"
@@ -72,7 +81,7 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/globe" />
-        
+
         <ImageButton
             android:id="@+id/waypoints"
             android:layout_width="wrap_content"
@@ -81,7 +90,7 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/flag" />
-        
+
         <ImageButton
             android:id="@+id/info"
             android:layout_width="wrap_content"

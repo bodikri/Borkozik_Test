@@ -322,8 +322,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         map = (MapView) findViewById(R.id.mapview);
 
         // set button actions
-        findViewById(R.id.zoomin).setOnClickListener(this);
-        findViewById(R.id.zoomout).setOnClickListener(this);
+        //findViewById(R.id.zoomin).setOnClickListener(this);
+        //findViewById(R.id.zoomout).setOnClickListener(this);
+        findViewById(R.id.northUp).setOnClickListener(this);
         findViewById(R.id.nextmap).setOnClickListener(this);
         findViewById(R.id.prevmap).setOnClickListener(this);
         findViewById(R.id.maps).setOnClickListener(this);
@@ -1106,16 +1107,16 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             String zoomStr = zoom - rz != 0.0 ? String.format("%.1f", zoom) : String.valueOf(rz);
             mapZoom.setText(zoomStr + "%");
         }
-
+        /*
         ImageButton zoomin = (ImageButton) findViewById(R.id.zoomin);
         ImageButton zoomout = (ImageButton) findViewById(R.id.zoomout);
         zoomin.setEnabled(application.getNextZoom() != 0.0);
         zoomout.setEnabled(application.getPrevZoom() != 0.0);
-
+        */
         LightingColorFilter disable = new LightingColorFilter(0xFFFFFFFF, 0xFF444444);
 
-        zoomin.setColorFilter(zoomin.isEnabled() ? null : disable);
-        zoomout.setColorFilter(zoomout.isEnabled() ? null : disable);
+        //zoomin.setColorFilter(zoomin.isEnabled() ? null : disable);
+        //zoomout.setColorFilter(zoomout.isEnabled() ? null : disable);
     }
 
     protected void updateGPSStatus()
@@ -2235,7 +2236,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     public void onClick(View v)
     {
         switch (v.getId())
-        {
+        {/*
             case R.id.zoomin:
                 if (application.getNextZoom() == 0.0)
                     break;
@@ -2275,6 +2276,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         finishHandler.sendEmptyMessage(0);
                     }
                 });
+                break;*/
+            case R.id.northUp:
+                MapView.setNorthUp();
                 break;
             case R.id.nextmap:
                 waitBar.setVisibility(View.VISIBLE);

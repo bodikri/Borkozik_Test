@@ -91,7 +91,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	 */
 	public boolean isTrackUp = true;
 	public String planeLogo;
-	private int plLogSize;
+	//private int plLogSize;
 	private long lastBestMap = 0;
 	private boolean bestMapEnabled = true;
 
@@ -120,7 +120,9 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	private float smoothB = 0;
 	private float smoothBS = 0;
 	public float bearing = 0;
-	public float fingerBearing = 0;
+	private static float fingerBearing = 0;
+	private float delataBearing=0;
+	private boolean boolBearing = true;
 	private float speed = 0;
 	private double mpp = 0;
 	private int vectorLength = 0;
@@ -355,11 +357,10 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		1.Получават се бели петна по картата - възможности за решаване?
 		2.Когато сме в режим на Котва и режим на редактиране на маршрут - картата да се ориентира на север!
 		*/
-		if(!isFollowing) bearing=fingerBearing;
+		if (!isFollowing)bearing=fingerBearing;
 
 		if (isTrackUp) {
 			//върти картината за да е курса винаги на горе
-			Log.i(TAG, "bearing:" + bearing);
 			canvas.rotate(-bearing, lookAheadXY[0] + cx, lookAheadXY[1] + cy);//Тук завърта картата спрямо самолетчето(lookAheadXY), иначе я върти спрямоцентъра на картата
 			application.drawMap(bearing, mapCenter, lookAheadXY, loadBestMap, getWidth(), getHeight(), canvas);//изчертава подложката на картата
 		}else {
@@ -606,7 +607,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 			{
 				if(isTrackUp) {
 					lookAheadXY[0] = 0;
-					lookAheadXY[1] = (int) Math.round( lookAheadS/1.25);// Kak да направя така, че картата да се изчертава необходимото когато обърне погледа
+					lookAheadXY[1] = (int) Math.round( lookAheadS/1.25);//На картата се изчертава необходимото пространство напред когато обърне погледа
 				}else{
 					lookAheadXY[0] = (int) Math.round(Math.sin(Math.toRadians(smoothB)) * -lookAheadS);
 					lookAheadXY[1] = (int) Math.round(Math.cos(Math.toRadians(smoothB)) * lookAheadS);
@@ -721,6 +722,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 				if (follow)
 				{
 					Toast.makeText(getContext(), R.string.following_enabled, Toast.LENGTH_SHORT).show();
+					fingerBearing = bearing;
 					boolean newMap = application.setMapCenter(currentLocation[0], currentLocation[1], true, false);
 					if (newMap)
 						updateMapInfo();
@@ -798,7 +800,12 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		movingCursor.setColorFilter(isFixed ? active : null);
 		update();
 	}
-
+	public static void setNorthUp()
+	{
+	fingerBearing=0;
+	//bearing=0;
+		//update();
+	}
 	public boolean isFixed()
 	{
 		return isFixed;
@@ -1327,6 +1334,8 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		if (obj == null)
 		{
 			pinch = 0;
+			boolBearing = true;
+
 			Log.e(TAG, "Scale: " + scale);
 			try
 			{
@@ -1342,14 +1351,29 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	@Override
 	public boolean setPositionAndScale(Object obj, PositionAndScale newObjPosAndScale, PointInfo touchPoint)
 	{
+		float tempBearing;
 		if (touchPoint.isDown() && touchPoint.getNumTouchPoints() == 2)
 		{
-			fingerBearing = (float) - Math.toDegrees(touchPoint.getMultiTouchAngle()) ;
-			Log.i(TAG, "fingerBearing:" + fingerBearing);
+			tempBearing = (float) -Math.toDegrees(touchPoint.getMultiTouchAngle());
+			if (boolBearing)
+			{
+				delataBearing = fingerBearing - tempBearing;
+				boolBearing = false;
+			}else{
+				fingerBearing = tempBearing+delataBearing;
+			}
+
+
+
+			//if (Math.abs(fingerBearing - tempBearing) > 10) delataBearing = fingerBearing - tempBearing;
+
+			//fingerBearing = touchPoint.getMultiTouchAngle();
+			Log.i(TAG, "fingerBearing" + fingerBearing + "  delataB:"+delataBearing +"  tempB:" + tempBearing + " Bool"+boolBearing);
 			if (pinch == 0)
 			{
 				pinch = touchPoint.getMultiTouchDiameterSq();
 			}
+
 			synchronized (lock)
 			{
 				scale = touchPoint.getMultiTouchDiameterSq() / pinch;

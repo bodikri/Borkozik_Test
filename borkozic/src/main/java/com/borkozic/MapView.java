@@ -120,6 +120,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	private float smoothB = 0;
 	private float smoothBS = 0;
 	public float bearing = 0;
+	public float fingerBearing = 0;
 	private float speed = 0;
 	private double mpp = 0;
 	private int vectorLength = 0;
@@ -354,10 +355,11 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		1.Получават се бели петна по картата - възможности за решаване?
 		2.Когато сме в режим на Котва и режим на редактиране на маршрут - картата да се ориентира на север!
 		*/
-
+		if(!isFollowing) bearing=fingerBearing;
 
 		if (isTrackUp) {
 			//върти картината за да е курса винаги на горе
+			Log.i(TAG, "bearing:" + bearing);
 			canvas.rotate(-bearing, lookAheadXY[0] + cx, lookAheadXY[1] + cy);//Тук завърта картата спрямо самолетчето(lookAheadXY), иначе я върти спрямоцентъра на картата
 			application.drawMap(bearing, mapCenter, lookAheadXY, loadBestMap, getWidth(), getHeight(), canvas);//изчертава подложката на картата
 		}else {
@@ -447,6 +449,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		synchronized (lock)
 		{
 			bearing = loc.getBearing();//bearing = application.bearingSet;
+
 			speed = loc.getSpeed();
 
 			if (currentLocation == null)
@@ -1311,6 +1314,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	{
 		pinch = 0;
 		scale = 1;
+
 		return this;
 	}
 
@@ -1325,6 +1329,7 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 		if (obj == null)
 		{
 			pinch = 0;
+			//fingerBearing=0;
 			Log.e(TAG, "Scale: " + scale);
 			try
 			{
@@ -1342,6 +1347,8 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 	{
 		if (touchPoint.isDown() && touchPoint.getNumTouchPoints() == 2)
 		{
+			fingerBearing = (float) - Math.toDegrees(touchPoint.getMultiTouchAngle()) ;
+			Log.i(TAG, "fingerBearing:" + fingerBearing);
 			if (pinch == 0)
 			{
 				pinch = touchPoint.getMultiTouchDiameterSq();

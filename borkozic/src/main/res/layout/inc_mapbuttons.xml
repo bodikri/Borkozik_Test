@@ -48,12 +48,12 @@
 -->
         <ImageButton
             android:id="@+id/northUp"
-            android:layout_width="wrap_content"
-            android:layout_height="99dp"
+            android:layout_width="35dp"
+            android:layout_height="53dp"
             android:background="@null"
             android:paddingTop="8dip"
             android:paddingBottom="8dip"
-            android:src="@drawable/compass_needle_north_blue" />
+            android:src="@drawable/compass_needle_north_blue2" />
 
         <ImageButton
             android:id="@+id/nextmap"

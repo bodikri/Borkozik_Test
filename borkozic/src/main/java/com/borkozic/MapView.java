@@ -1363,11 +1363,6 @@ public class MapView extends SurfaceView implements SurfaceHolder.Callback, Mult
 				fingerBearing = tempBearing+delataBearing;
 			}
 
-
-
-			//if (Math.abs(fingerBearing - tempBearing) > 10) delataBearing = fingerBearing - tempBearing;
-
-			//fingerBearing = touchPoint.getMultiTouchAngle();
 			Log.i(TAG, "fingerBearing" + fingerBearing + "  delataB:"+delataBearing +"  tempB:" + tempBearing + " Bool"+boolBearing);
 			if (pinch == 0)
 			{

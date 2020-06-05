@@ -322,8 +322,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         map = (MapView) findViewById(R.id.mapview);
 
         // set button actions
-        //findViewById(R.id.zoomin).setOnClickListener(this);
-        //findViewById(R.id.zoomout).setOnClickListener(this);
+        findViewById(R.id.zoomin).setOnClickListener(this);
+        findViewById(R.id.zoomout).setOnClickListener(this);
         findViewById(R.id.northUp).setOnClickListener(this);
         findViewById(R.id.nextmap).setOnClickListener(this);
         findViewById(R.id.prevmap).setOnClickListener(this);
@@ -333,7 +333,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         findViewById(R.id.follow).setOnClickListener(this);
         findViewById(R.id.locate).setOnClickListener(this);
         findViewById(R.id.tracking).setOnClickListener(this);
-        findViewById(R.id.expand).setOnClickListener(this);
+        //findViewById(R.id.expand).setOnClickListener(this);
         findViewById(R.id.finishedit).setOnClickListener(this);
         findViewById(R.id.addpoint).setOnClickListener(this);
         findViewById(R.id.insertpoint).setOnClickListener(this);
@@ -1496,14 +1496,14 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         trackBar.requestFocus();
         updateMapViewArea();
     }
-
+//Процедура която се изпълнява след натискане на бутон EditRoute(... ->Navigation->Routes->Edit)
     private void startEditRoute(Route route)
     {
-        setFollowing(false);
-        application.editingRoute = route;
-        application.editingRoute.editing = true;
+        setFollowing(false); // Излиза от режим следване
+        application.editingRoute = route; //фиксира(намира кой маршрут ще редактираме)
+        application.editingRoute.editing = true;//запаметява в какъв режим се намира приложението
 
-        boolean newroute = true;
+        boolean newroute = true;//Следва изреждане на маршрутите за да провери дали това е нов маршрут
         for (Iterator<RouteOverlay> iter = application.routeOverlays.iterator(); iter.hasNext();)
         {
             RouteOverlay ro = iter.next();
@@ -1513,15 +1513,15 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 newroute = false;
             }
         }
-        if (newroute)
+        if (newroute)//ако е нов маршрут и не е добавен като Overlay го добавя
         {
             RouteOverlay newRoute = new RouteOverlay(this, application.editingRoute);
             application.routeOverlays.add(newRoute);
         }
         findViewById(R.id.editroute).setVisibility(View.VISIBLE); //използвам същият панел с бутони за едитване на маршрут
-        //Log.d(TAG, "startEditRoute");
-        updateGPSStatus();
-        application.routeEditingWaypoints = new Stack<Waypoint>();
+        //Log.d(TAG, "startEditRoute");Панела за редактиране на маршрута става видим
+        updateGPSStatus();// не ми е ясно защо е необходимо да се обнови информацията за GPS-а
+        application.routeEditingWaypoints = new Stack<Waypoint>();//Създава нов (празен)набор от точки
         if (showDistance > 0)
             application.distanceOverlay.setEnabled(false);
         updateMapViewArea();
@@ -1712,7 +1712,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         }
         else
         {
-            startActivity(new Intent(this, AreaDetails.class).putExtra("INDEX", area));
+            startActivity(new Intent(this, AreaDetails.class).putExtra("index", area));//index - оправено за да прихваща конкретната зона
             return true;
         }
     }
@@ -2236,7 +2236,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     public void onClick(View v)
     {
         switch (v.getId())
-        {/*
+        {
             case R.id.zoomin:
                 if (application.getNextZoom() == 0.0)
                     break;
@@ -2276,7 +2276,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                         finishHandler.sendEmptyMessage(0);
                     }
                 });
-                break;*/
+                break;
             case R.id.northUp:
                 MapView.setNorthUp();
                 break;
@@ -2375,6 +2375,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 editor.apply();
                 break;
             }
+            /*
             case R.id.expand:
                 ImageButton expand = (ImageButton) findViewById(R.id.expand);
                 if (isFullscreen)
@@ -2389,6 +2390,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 }
                 isFullscreen = !isFullscreen;
                 break;
+                */
             case R.id.cutbefore:
                 application.editingTrack.cutBefore(trackBar.getProgress());
                 int nb = application.editingTrack.getPoints().size() - 1;

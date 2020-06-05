@@ -52,10 +52,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.borkozic.data.Area;
 import com.borkozic.data.Route;
 import com.borkozic.data.Track;
+import com.borkozic.overlay.AreaOverlay;
 import com.borkozic.overlay.CurrentTrackOverlay;
 import com.borkozic.overlay.RouteOverlay;
+import com.borkozic.util.AreaFilenameFilter;
 import com.borkozic.util.AutoloadedRouteFilenameFilter;
 import com.borkozic.util.FileList;
 import com.borkozic.util.GpxFiles;
@@ -358,7 +361,7 @@ public class Splash extends Activity implements OnClickListener
 				String wptdir = settings.getString(getString(R.string.pref_folder_waypoint), null);
 				System.err.println("wpt: " + wptdir);
 				if (wptdir != null)
-				{//покзва зъобщение че може да работи с :Data folder is now unified for all data types: waypoints, tracks and routes
+				{//покзва съобщение че може да работи с :Data folder is now unified for all data types: waypoints, tracks and routes
 					wait = true;
 					msg = mHandler.obtainMessage(MSG_SAY);
 					b = new Bundle();
@@ -379,9 +382,9 @@ public class Splash extends Activity implements OnClickListener
 					}
 				}
 				datadir.mkdirs();
-				application.copyAssets("zoni", datadir);
+				application.copyAssets("zoni", datadir);//Todo - Това се изпълнява всеки път когато се стартирва приложението!!! - Нужна е промяна
 			}else{
-				try{android.util.Log.e("Spalsh", "Copy zoni");
+				try{//android.util.Log.e("Spalsh", "Copy zoni");
 					application.copyAssets("zoni", datadir);
 				}
 				catch (Exception e){
@@ -566,7 +569,34 @@ public class Splash extends Activity implements OnClickListener
 					}
 				}
 			}
+			//Load Areas
+			if (settings.getBoolean(getString(R.string.pref_area_preload), resources.getBoolean(R.bool.def_area_preload)))
+			{
+				boolean hide = settings.getBoolean(getString(R.string.pref_area_preload_hidden), resources.getBoolean(R.bool.def_area_preload_hidden));
+				List<File> files = FileList.getFileListing(new File(application.dataPath), new AreaFilenameFilter());
+				for (File file : files)
+				{
+					List<Area> areas = null;
+					try
+					{
+						String lc = file.getName().toLowerCase();
+						if (lc.endsWith(".art2"))
+							areas = OziExplorerFiles.loadAreasFromFile(file, application.charset);
 
+						application.addAreas(areas);
+						for (Area area : areas)
+						{
+							//ареа.show = !hide;
+							AreaOverlay newArea = new AreaOverlay(Splash.this, area);
+							application.areaOverlays.add(newArea);
+						}
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
 			total += PROGRESS_STEP;
 			msg = mHandler.obtainMessage(MSG_PROGRESS);
 			b = new Bundle();

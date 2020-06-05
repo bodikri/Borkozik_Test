@@ -30,6 +30,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -66,6 +67,7 @@ import java.util.Calendar;
 
 public class WaypointProperties extends Activity implements OnItemSelectedListener
 {
+	private static final String TAG = "WaypointProperties";
 	private Waypoint waypoint;
 
 	private TabHost tabHost;
@@ -89,6 +91,7 @@ public class WaypointProperties extends Activity implements OnItemSelectedListen
 	private int curFormat = -1;
 	private String iconValue;
 	private int route;
+	private int area;
 
 	private int defMarkerColor;
 	private int defTextColor;
@@ -102,13 +105,15 @@ public class WaypointProperties extends Activity implements OnItemSelectedListen
 		int index = getIntent().getExtras().getInt("INDEX");
 		route = getIntent().getExtras().getInt("ROUTE");
 
+		area = getIntent().getExtras().getInt("AREA");
+		Log.d(TAG, "route:" + route + "   " + "area:" + area);
 		tabHost = (TabHost) findViewById(R.id.tabhost);
 		tabHost.setup();
 		tabHost.addTab(tabHost.newTabSpec("main").setIndicator(getString(R.string.primary)).setContent(R.id.properties));
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
 			tabHost.getTabWidget().getChildAt(0).getLayoutParams().height = 50;
 
-		if (route == 0)
+		if (route == 0 && area==0 )
 		{
 			tabHost.addTab(tabHost.newTabSpec("advanced").setIndicator(getString(R.string.advanced)).setContent(R.id.advanced));
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -116,7 +121,7 @@ public class WaypointProperties extends Activity implements OnItemSelectedListen
 		}
 		else
 		{
-			findViewById(android.R.id.tabs).setVisibility(View.GONE);
+			findViewById(android.R.id.tabs).setVisibility(View.GONE);// адванс таба изчезва когато редактираме точки от маршрут или зона
 		}
 
 		if (savedInstanceState != null)
@@ -125,9 +130,16 @@ public class WaypointProperties extends Activity implements OnItemSelectedListen
 		}
 
 		Borkozic application = (Borkozic) getApplication();
+
 		if (route > 0)
 		{
 			waypoint = application.getRoute(route - 1).getWaypoints().get(index);
+			findViewById(R.id.advanced).setVisibility(View.GONE);
+			findViewById(R.id.icon_container).setVisibility(View.GONE);
+		}
+		else if (area > 0)
+		{
+			waypoint = application.getArea(area - 1).getWaypoints().get(index);
 			findViewById(R.id.advanced).setVisibility(View.GONE);
 			findViewById(R.id.icon_container).setVisibility(View.GONE);
 		}
@@ -389,7 +401,7 @@ public class WaypointProperties extends Activity implements OnItemSelectedListen
 					waypoint.textcolor = textColorValue;
 
 				int index = -1;
-				if (route == 0)
+				if (route == 0 && area ==0)
 				{
 					if (waypoint.set == null)
 					{

@@ -82,18 +82,18 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
         if (navigation)
         {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show, null)));
+                quickAction.addActionItem(new ActionItem(qaWaypointNavigate, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show, null)));
             }else {
-                quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show)));
+                quickAction.addActionItem(new ActionItem(qaWaypointNavigate, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show)));
             }
 
         }
         else
         {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show, null)));
+                quickAction.addActionItem(new ActionItem(qaWaypointProperties, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show, null)));
             }else {
-                quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show)));
+                quickAction.addActionItem(new ActionItem(qaWaypointProperties, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show)));
             }
         }
         quickAction.setOnActionItemClickListener(actionItemClickListener);
@@ -168,7 +168,7 @@ public class AreaDetails extends ListActivity implements AdapterView.OnItemClick
                     break;
                 case qaWaypointProperties:
                     int index = application.getAreaIndex(area);
-                    startActivity(new Intent(AreaDetails.this, WaypointProperties.class).putExtra("INDEX", selectedPosition).putExtra("ROUTE", index + 1));
+                    startActivity(new Intent(AreaDetails.this, WaypointProperties.class).putExtra("INDEX", selectedPosition).putExtra("AREA", index + 1));
                     break;
             }
         }

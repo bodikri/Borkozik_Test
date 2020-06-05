@@ -103,18 +103,18 @@ public class RouteDetails extends ListActivity implements OnItemClickListener
 		if (navigation)
 		{
 			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-				quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show, null)));
+				quickAction.addActionItem(new ActionItem(qaWaypointNavigate, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show, null)));
 			}else {
-				quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show)));
+				quickAction.addActionItem(new ActionItem(qaWaypointNavigate, getString(R.string.menu_navigate), resources.getDrawable(R.drawable.ic_action_show)));
 			}
 
 		}
 		else
 		{
 			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-				quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show, null)));
+				quickAction.addActionItem(new ActionItem(qaWaypointProperties, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show, null)));
 			}else {
-				quickAction.addActionItem(new ActionItem(qaWaypointVisible, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show)));
+				quickAction.addActionItem(new ActionItem(qaWaypointProperties, getString(R.string.menu_edit), resources.getDrawable(R.drawable.ic_action_show)));
 			}
 		}
 		quickAction.setOnActionItemClickListener(actionItemClickListener);

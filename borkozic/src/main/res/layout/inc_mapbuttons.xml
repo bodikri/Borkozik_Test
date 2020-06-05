@@ -27,7 +27,7 @@
             android:layout_width="69dp"
             android:layout_height="wrap_content"
             android:id="@+id/norm_button" />
-<!--
+
         <ImageButton
             android:id="@+id/zoomin"
             android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/zoom_out" />
--->
+
         <ImageButton
             android:id="@+id/northUp"
             android:layout_width="35dp"
@@ -126,7 +126,7 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/doc_edit" />
-
+<!--
         <ImageButton
             android:id="@+id/expand"
             android:layout_width="wrap_content"
@@ -135,7 +135,7 @@
             android:paddingBottom="8dip"
             android:paddingTop="8dip"
             android:src="@drawable/expand" />
-
+-->
         <Button
             android:text="@string/buttonZeroLevel"
             android:layout_width="69dp"

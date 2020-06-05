@@ -67,6 +67,8 @@ import android.util.Pair;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.borkozic.data.Area;
 import com.borkozic.data.MapObject;
 import com.borkozic.data.Route;
@@ -132,20 +134,20 @@ public class Borkozic extends BaseApplication
 	private double magneticDeclination = 0;
 
 	//List of objects
-	private AbstractMap<Long, MapObject> mapObjects = new HashMap<Long, MapObject>();
-	private List<Waypoint> waypoints = new ArrayList<Waypoint>();
+	private final AbstractMap<Long, MapObject> mapObjects = new HashMap<Long, MapObject>();
+	private final List<Waypoint> waypoints = new ArrayList<Waypoint>();
 	private List<WaypointSet> waypointSets = new ArrayList<WaypointSet>();
 	private WaypointSet defWaypointSet;
 	private List<Track> tracks = new ArrayList<Track>();
 	private List<Route> routes = new ArrayList<Route>();
-// todo - тук трябва да добавя List<Area> - но преди това трябва да създам класа
+// тук съм  добавил List<Area> - но преди това съм създаа класа
 	private List<Area> areas = new ArrayList<Area>();
 
 	// Map activity state
 	protected Route editingRoute = null;
+	protected Area editingArea = null;
 	protected Track editingTrack = null;
 	protected Stack<Waypoint> routeEditingWaypoints = null;
-	protected Area editingArea = null;
 	protected Stack<Waypoint> areaEditingWaypoints = null;
 	
 	// Plugins
@@ -166,7 +168,7 @@ public class Borkozic extends BaseApplication
 	public ScaleOverlay scaleOverlay;
 	public List<TrackOverlay> fileTrackOverlays = new ArrayList<TrackOverlay>();
 	public List<RouteOverlay> routeOverlays = new ArrayList<RouteOverlay>();
-	//todo - тук трябва да добавя List<AreaOverlay> - но преди това трябва да създам класа
+	//тук съм  добавил List<AreaOverlay> - като за това съм създал и класа
 	public List<AreaOverlay> areaOverlays = new ArrayList<AreaOverlay>();
 	
 	private Locale locale = null;
@@ -264,7 +266,7 @@ public class Borkozic extends BaseApplication
 			if (currentTrackOverlay != null)
 				overlays.add(currentTrackOverlay);
 			overlays.addAll(routeOverlays);
-			overlays.addAll(areaOverlays);// todo - eto
+			overlays.addAll(areaOverlays);// Добавено от мен
 			if (navigationOverlay != null)
 				overlays.add(navigationOverlay);
 			if (waypointsOverlay != null)
@@ -272,7 +274,7 @@ public class Borkozic extends BaseApplication
 			if (scaleOverlay != null)
 				overlays.add(scaleOverlay);
 			if (mapObjectsOverlay != null)
-				overlays.add(mapObjectsOverlay);
+				overlays.add(mapObjectsOverlay);// Добавя MapObjects което си е SharedLocations
 			if (distanceOverlay != null)
 				overlays.add(distanceOverlay);
 		}
@@ -363,7 +365,7 @@ public class Borkozic extends BaseApplication
 		uid++;
 		Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putLong(getString(R.string.app_lastuid), uid);
-		editor.commit();//todo - трябва ли да го заменя с apply?
+		editor.apply();
 		return uid;
 	}
 
@@ -918,7 +920,7 @@ public class Borkozic extends BaseApplication
 		return routes.get(index);
 	}
 	
-	public Route getRouteByFile(String filepath)
+	public Route getRouteByFile(String filepath)//зарежда навигация по маршрут ако има стартиран такъв
 	{
 		for (Route route : routes)
 		{
@@ -977,7 +979,7 @@ public class Borkozic extends BaseApplication
 		return areas.get(index);
 	}
 
-	public Area getAreaByFile(String filepath)
+	public Area getAreaByFile(String filepath)//Todo - да направя да зарежда навигация към центъра на зона, при стартирана такава
 	{
 		for (Area area : areas)
 		{
@@ -1800,7 +1802,6 @@ public class Borkozic extends BaseApplication
 		}
 		catch (IOException e)
 		{
-			//android.util.Log.e("Borkozic", "Failed to get assets list");
 			Log.e("Borkozic", "Failed to get assets list", e);
 			return;
 		}
@@ -2004,7 +2005,7 @@ public Drawable getDependVeDrawable (int id, Resources res)//моя метод
 		config.setLocale(locale);
 	}
 	@Override
-	public void onConfigurationChanged(Configuration newConfig)
+	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 		if (locale != null)
@@ -2032,7 +2033,7 @@ public Drawable getDependVeDrawable (int id, Resources res)//моя метод
 		Log.e(TAG, "App onCreate()");
 		setInstance(this);
 		handler = new Handler();
-		
+		/*
         String intentToCheck = "com.borkozic.donate";
         String myPackageName = getPackageName();
         PackageManager pm = getPackageManager();
@@ -2045,7 +2046,7 @@ public Drawable getDependVeDrawable (int id, Resources res)//моя метод
 		catch (NameNotFoundException e)
 		{
 		}
-
+		*/
 		File sdcard = Environment.getExternalStorageDirectory();
 		Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this, sdcard.getAbsolutePath()));
 		

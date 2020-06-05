@@ -351,7 +351,7 @@ public class SearchableActivity extends ListActivity
 		finish();
 	}
 
-	public class SearchResultsListAdapter extends BaseAdapter
+	public static class SearchResultsListAdapter extends BaseAdapter
 	{
 		List<Object> mItems;
 		private LayoutInflater mInflater;

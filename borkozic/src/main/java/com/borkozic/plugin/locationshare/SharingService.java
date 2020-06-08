@@ -252,7 +252,7 @@ public class SharingService extends Service implements SharedPreferences.OnShare
                         query = "session=" + URLEncoder.encode(session, "UTF-8") + ";user=" + URLEncoder.encode(user, "UTF-8") + ";lat=" + currentLocation.getLatitude() + ";lon=" + currentLocation.getLongitude()
                                 + ";track=" + currentLocation.getBearing() + ";speed=" + currentLocation.getSpeed() + ";ftime=" + currentLocation.getTime() + ";altitude=" + currentLocation.getAltitude();
                     }
-                    URL = new URI("http", null, "androzic.com", 80, "/cgi-bin/loc.cgi", query, null);
+                    URL = new URI("http", null, "Borkozic.com", 80, "/cgi-bin/loc.cgi", query, null);
                     Log.d(TAG, query);
                     HttpClient httpclient = new DefaultHttpClient();
                     HttpResponse response = httpclient.execute(new HttpGet(URL));
@@ -263,7 +263,7 @@ public class SharingService extends Service implements SharedPreferences.OnShare
                         response.getEntity().writeTo(out);
                         out.close();
                         String responseString = out.toString();
-                        Log.d(TAG, responseString);
+                        Log.d(TAG, responseString); //Отговор от сървара - приема стойности за другите обекти
                         JSONObject sts = new JSONObject(responseString);
                         JSONArray entries = sts.getJSONArray("users");
 
